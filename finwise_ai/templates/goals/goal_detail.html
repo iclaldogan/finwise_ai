@@ -194,9 +194,7 @@
             <div class="modal-header">
                 <h5 class="modal-title">Katkı Ekle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="post" action="{% url 'goal_add_contribution' goal.pk %}">
-                <div class="modal-body">
+            </di                <form method="post" action="{% url 'goals:contribution_add' goal.pk %}">                <div class="modal-body">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="amount" class="form-label">Miktar *</label>
