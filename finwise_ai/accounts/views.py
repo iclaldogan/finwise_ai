@@ -48,7 +48,7 @@ def signup_view(request):
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], html_message=message)
             
             messages.success(request, 'Account created successfully! Please check your email to verify your account.')
-            return redirect('login')
+            return redirect('accounts:login')
     else:
         form = SignUpForm()
     
@@ -63,7 +63,7 @@ def verify_email_view(request, token):
         # Check if token is expired
         if verification.expires_at < timezone.now():
             messages.error(request, 'Verification link has expired. Please request a new one.')
-            return redirect('login')
+            return redirect('accounts:login')
         
         # Mark user as verified
         user = verification.user
@@ -74,11 +74,11 @@ def verify_email_view(request, token):
         verification.delete()
         
         messages.success(request, 'Email verified successfully! You can now login to your account.')
-        return redirect('login')
+        return redirect('accounts:login')
     
     except EmailVerification.DoesNotExist:
         messages.error(request, 'Invalid verification link.')
-        return redirect('login')
+        return redirect('accounts:login')
 
 
 def login_view(request):
@@ -121,7 +121,7 @@ def logout_view(request):
     """Handle user logout."""
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('login')
+    return redirect('accounts:login')
 
 
 def password_reset_request_view(request):
@@ -151,11 +151,11 @@ def password_reset_request_view(request):
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], html_message=message)
                 
                 messages.success(request, 'Password reset link has been sent to your email.')
-                return redirect('login')
+                return redirect('accounts:login')
             except User.DoesNotExist:
                 # Don't reveal that the user doesn't exist
                 messages.success(request, 'Password reset link has been sent to your email if the account exists.')
-                return redirect('login')
+                return redirect('accounts:login')
     else:
         form = CustomPasswordResetForm()
     
@@ -170,7 +170,7 @@ def password_reset_confirm_view(request, token):
         # Check if token is expired
         if reset.expires_at < timezone.now():
             messages.error(request, 'Password reset link has expired. Please request a new one.')
-            return redirect('password_reset_request')
+            return redirect('accounts:password_reset_request')
         
         if request.method == 'POST':
             form = CustomSetPasswordForm(reset.user, request.POST)
@@ -181,7 +181,7 @@ def password_reset_confirm_view(request, token):
                 reset.delete()
                 
                 messages.success(request, 'Password has been reset successfully. You can now login with your new password.')
-                return redirect('login')
+                return redirect('accounts:login')
         else:
             form = CustomSetPasswordForm(reset.user)
         
@@ -189,7 +189,7 @@ def password_reset_confirm_view(request, token):
     
     except PasswordReset.DoesNotExist:
         messages.error(request, 'Invalid password reset link.')
-        return redirect('password_reset_request')
+        return redirect('accounts:password_reset_request')
 
 
 @login_required
@@ -206,7 +206,7 @@ def profile_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully.')
-            return redirect('profile')
+            return redirect('accounts:profile')
     else:
         form = UserProfileForm(instance=profile)
     
