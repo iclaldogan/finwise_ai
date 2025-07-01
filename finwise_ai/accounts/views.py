@@ -38,7 +38,7 @@ def signup_view(request):
             # Send verification email
             subject = 'Verify your FinWise AI account'
             verification_url = request.build_absolute_uri(
-                reverse('verify_email', kwargs={'token': token})
+                reverse('accounts:verify_email', kwargs={'token': token})
             )
             message = render_to_string('accounts/email/verification_email.html', {
                 'user': user,
@@ -141,7 +141,7 @@ def password_reset_request_view(request):
                 # Send reset email
                 subject = 'Reset your FinWise AI password'
                 reset_url = request.build_absolute_uri(
-                    reverse('password_reset_confirm', kwargs={'token': token})
+                    reverse('accounts:password_reset_confirm', kwargs={'token': token})
                 )
                 message = render_to_string('accounts/email/password_reset_email.html', {
                     'user': user,
@@ -233,7 +233,7 @@ def resend_verification_email_view(request):
     # Send verification email
     subject = 'Verify your FinWise AI account'
     verification_url = request.build_absolute_uri(
-        reverse('verify_email', kwargs={'token': token})
+        reverse('accounts:verify_email', kwargs={'token': token})
     )
     message = render_to_string('accounts/email/verification_email.html', {
         'user': user,
