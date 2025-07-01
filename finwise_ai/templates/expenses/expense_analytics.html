@@ -42,7 +42,7 @@
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Expenses</h5>
-                    <h3 class="mb-0">${{ total_expenses|floatformat:2 }}</h3>
+                    <h3 class="mb-0">₺{{ total_expenses|floatformat:2 }}</h3>
                 </div>
             </div>
         </div>
@@ -50,7 +50,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Avg Monthly</h5>
-                    <h3 class="mb-0">${{ avg_monthly|floatformat:2 }}</h3>
+                    <h3 class="mb-0">₺{{ avg_monthly|floatformat:2 }}</h3>
                 </div>
             </div>
         </div>
@@ -66,11 +66,11 @@
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <h5 class="card-title">Avg per Transaction</h5>
-                                         <h3 class="mb-0">
+                     <h3 class="mb-0">
                         {% if num_transactions > 0 %}
-                            ${% widthratio total_expenses num_transactions 1 %}
+                            ₺{% widthratio total_expenses num_transactions 1 %}
                         {% else %}
-                            $0.00
+                            ₺0.00
                         {% endif %}
                      </h3>
                 </div>

@@ -30,7 +30,7 @@
             <div class="card text-white bg-success">
                 <div class="card-body">
                     <h5>Portfolio Value</h5>
-                    <h3>${{ total_portfolio_value|floatformat:2 }}</h3>
+                    <h3>₺{{ total_portfolio_value|floatformat:2 }}</h3>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
             <div class="card text-white bg-info">
                 <div class="card-body">
                     <h5>Total Returns</h5>
-                    <h3>${{ total_returns|floatformat:2 }}</h3>
+                    <h3>₺{{ total_returns|floatformat:2 }}</h3>
                 </div>
             </div>
         </div>
@@ -53,9 +53,9 @@
     </div>
 
     <!-- Investments List -->
-    {% if investments %}
+    {% if active_investments %}
         <div class="row">
-            {% for investment in investments %}
+            {% for investment in active_investments %}
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -82,8 +82,8 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted">Initial: ${{ investment.initial_amount|floatformat:2 }}</small>
-                                <small class="text-muted">Current: ${{ investment.current_value|floatformat:2 }}</small>
+                                <small class="text-muted">Initial: ₺{{ investment.initial_amount|floatformat:2 }}</small>
+                                <small class="text-muted">Current: ₺{{ investment.current_value|floatformat:2 }}</small>
                             </div>
                         </div>
 
@@ -101,11 +101,11 @@
                         <div class="row mt-2">
                             <div class="col-6">
                                 <small class="text-muted">Purchase Price</small>
-                                <div>${{ investment.purchase_price|floatformat:2 }}</div>
+                                <div>₺{{ investment.purchase_price|floatformat:2 }}</div>
                             </div>
                             <div class="col-6">
                                 <small class="text-muted">Current Price</small>
-                                <div>${{ investment.current_price|floatformat:2 }}</div>
+                                <div>₺{{ investment.current_price|floatformat:2 }}</div>
                             </div>
                         </div>
                     </div>

@@ -58,6 +58,10 @@ def investments_home(request):
     context = {
         'active_investments': active_investments,
         'simulated_investments': simulated_investments,
+        'investments_count': active_investments.count(),
+        'total_portfolio_value': total_value,
+        'total_returns': total_return,
+        'return_percentage': total_return_percentage,
         'total_value': total_value,
         'total_cost': total_cost,
         'total_return': total_return,
