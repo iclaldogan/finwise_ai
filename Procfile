@@ -1,0 +1,1 @@
+web: cd finwise_ai && gunicorn finwise.wsgi --log-file - 

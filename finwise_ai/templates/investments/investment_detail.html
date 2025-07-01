@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ investment.name }} - Investment Detail{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header">
+            <h5>{{ investment.name }} Details</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Current Value:</strong> ${{ investment.current_value|floatformat:2 }}</p>
+            <p><strong>Purchase Price:</strong> ${{ investment.purchase_price|floatformat:2 }}</p>
+            <p><strong>Shares:</strong> {{ investment.shares }}</p>
+            <a href="{% url 'investments:investment_list' %}" class="btn btn-secondary">Back to Investments</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

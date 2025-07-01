@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Loan Simulator - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-calculator me-2 text-primary"></i>
+                    Loan Simulator
+                </h1>
+                <a href="{% url 'loans:loan_home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Loans
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-sliders-h me-2"></i>
+                        Loan Parameters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="loanSimulatorForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="loan_amount" class="form-label">
+                                <i class="fas fa-dollar-sign me-1"></i>Loan Amount
+                            </label>
+                            <input type="number" class="form-control" id="loan_amount" name="loan_amount" 
+                                   value="{{ loan_amount|default:100000 }}" step="1000" min="1000" max="10000000" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="interest_rate" class="form-label">
+                                <i class="fas fa-percentage me-1"></i>Annual Interest Rate (%)
+                            </label>
+                            <input type="number" class="form-control" id="interest_rate" name="interest_rate" 
+                                   value="{{ interest_rate|default:5.5 }}" step="0.1" min="0.1" max="30" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="loan_term" class="form-label">
+                                <i class="fas fa-calendar-alt me-1"></i>Loan Term (Years)
+                            </label>
+                            <input type="number" class="form-control" id="loan_term" name="loan_term" 
+                                   value="{{ loan_term|default:15 }}" min="1" max="50" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="loan_type" class="form-label">
+                                <i class="fas fa-home me-1"></i>Loan Type
+                            </label>
+                            <select class="form-select" id="loan_type" name="loan_type">
+                                <option value="fixed" {% if loan_type == 'fixed' %}selected{% endif %}>Fixed Rate</option>
+                                <option value="variable" {% if loan_type == 'variable' %}selected{% endif %}>Variable Rate</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-calculator me-2"></i>Calculate Loan Details
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            {% if results %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Loan Calculation Results
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-primary text-white rounded">
+                                <h6 class="mb-1">Monthly Payment</h6>
+                                <h4 class="mb-0">${{ results.monthly_payment|floatformat:2 }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-success text-white rounded">
+                                <h6 class="mb-1">Total Interest</h6>
+                                <h4 class="mb-0">${{ results.total_interest|floatformat:2 }}</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-info text-white rounded">
+                                <h6 class="mb-1">Total Amount</h6>
+                                <h4 class="mb-0">${{ results.total_payment|floatformat:2 }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-warning text-white rounded">
+                                <h6 class="mb-1">Total Payments</h6>
+                                <h4 class="mb-0">{{ results.total_payments }}</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if results.affordability_analysis %}
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-money-bill-wave me-2"></i>Affordability Analysis</h6>
+                        <p class="mb-0">{{ results.affordability_analysis }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if results.payment_schedule %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-table me-2"></i>
+                        Payment Schedule (First 12 Months)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Payment #</th>
+                                    <th>Principal</th>
+                                    <th>Interest</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in results.payment_schedule|slice:":12" %}
+                                <tr>
+                                    <td>{{ payment.payment_number }}</td>
+                                    <td>${{ payment.principal|floatformat:2 }}</td>
+                                    <td>${{ payment.interest|floatformat:2 }}</td>
+                                    <td>${{ payment.remaining_balance|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-calculator fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Enter Loan Details</h5>
+                    <p class="text-muted">Fill in the loan parameters on the left to see calculation results here.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loanSimulatorForm');
+    const inputs = form.querySelectorAll('input[type="number"], select');
+    
+    // Auto-calculate on input change
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Optional: Auto-submit form on change
+            // form.submit();
+        });
+    });
+});
+</script>
+{% endblock %} 

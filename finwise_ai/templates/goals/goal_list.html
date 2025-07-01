@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}All Goals - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-list me-2"></i>All Goals</h2>
+        <a href="{% url 'goals:goal_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>New Goal
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="paused" {% if request.GET.status == 'paused' %}selected{% endif %}>Paused</option>
+                        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-select">
+                        <option value="">All Priorities</option>
+                        <option value="high" {% if request.GET.priority == 'high' %}selected{% endif %}>High</option>
+                        <option value="medium" {% if request.GET.priority == 'medium' %}selected{% endif %}>Medium</option>
+                        <option value="low" {% if request.GET.priority == 'low' %}selected{% endif %}>Low</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}" {% if request.GET.category == category %}selected{% endif %}>
+                                {{ category }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary me-2">Filter</button>
+                    <a href="{% url 'goals:goal_list' %}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goals Table -->
+    {% if goals %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Goal</th>
+                                <th>Progress</th>
+                                <th>Target Amount</th>
+                                <th>Current Amount</th>
+                                <th>Target Date</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for goal in goals %}
+                            <tr>
+                                <td>
+                                    <strong>{{ goal.name }}</strong>
+                                    {% if goal.description %}
+                                        <br><small class="text-muted">{{ goal.description|truncatewords:10 }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ goal.progress_percentage }}%"
+                                             aria-valuenow="{{ goal.progress_percentage }}" 
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            {{ goal.progress_percentage|floatformat:1 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${{ goal.target_amount|floatformat:2 }}</td>
+                                <td>${{ goal.current_amount|floatformat:2 }}</td>
+                                <td>{{ goal.target_date|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if goal.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif goal.status == 'completed' %}
+                                        <span class="badge bg-primary">Completed</span>
+                                    {% elif goal.status == 'paused' %}
+                                        <span class="badge bg-warning">Paused</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ goal.priority|lower }}">{{ goal.get_priority_display }}</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'goals:goal_detail' goal.id %}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'goals:goal_edit' goal.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'goals:contribution_create' goal.id %}" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav aria-label="Goals pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-target fa-3x text-muted mb-3"></i>
+            <h4>No Goals Found</h4>
+            <p class="text-muted">Create your first savings goal to start tracking your progress.</p>
+            <a href="{% url 'goals:goal_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create Your First Goal
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

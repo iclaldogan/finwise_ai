@@ -1,0 +1,25 @@
+# Virtual Environment
+finwise_env/
+venv/
+env/
+
+# Django
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+
+# Deployment files
+finwise_deployment.zip
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+

@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block title %}Credit Score Management - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-credit-card me-2"></i>Credit Management</h2>
+        <div>
+            <a href="{% url 'credit:credit_history_add' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus me-2"></i>Add Credit Entry
+            </a>
+            <a href="{% url 'credit:credit_estimator' %}" class="btn btn-outline-info">
+                <i class="fas fa-calculator me-2"></i>Credit Estimator
+            </a>
+        </div>
+    </div>
+
+    <!-- Credit Score Overview -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Credit Score Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if latest_score %}
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center">
+                                <div class="credit-score-display">
+                                    <h1 class="display-3 mb-0 {% if latest_score.score >= 750 %}text-success{% elif latest_score.score >= 650 %}text-warning{% else %}text-danger{% endif %}">
+                                        {{ latest_score.score }}
+                                    </h1>
+                                    <p class="text-muted">Current Score</p>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="credit-range">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Credit Score Range</span>
+                                        {% if latest_score.score >= 750 %}
+                                            <span class="badge bg-success">Excellent</span>
+                                        {% elif latest_score.score >= 700 %}
+                                            <span class="badge bg-primary">Good</span>
+                                        {% elif latest_score.score >= 650 %}
+                                            <span class="badge bg-warning">Fair</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Poor</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="progress mb-3" style="height: 20px;">
+                                        <div class="progress-bar bg-danger" style="width: 20%">300-579</div>
+                                        <div class="progress-bar bg-warning" style="width: 20%">580-669</div>
+                                        <div class="progress-bar bg-info" style="width: 20%">670-739</div>
+                                        <div class="progress-bar bg-primary" style="width: 20%">740-799</div>
+                                        <div class="progress-bar bg-success" style="width: 20%">800-850</div>
+                                    </div>
+                                    <small class="text-muted">Last updated: {{ latest_score.date|date:"M d, Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                            <h4>No Credit Score Data</h4>
+                            <p class="text-muted">Add your credit score to start tracking your credit health.</p>
+                            <a href="{% url 'credit:credit_history_add' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add Credit Score
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'credit:credit_estimator' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-calculator me-2"></i>Estimate Score
+                        </a>
+                        <a href="{% url 'credit:credit_score_comparison' %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-chart-bar me-2"></i>Compare Scores
+                        </a>
+                        <a href="{% url 'credit:credit_history_list' %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-arrow-up me-2"></i>Get Tips
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credit Factors -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-balance-scale me-2"></i>Credit Factors Impact
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if factors %}
+                        <div class="row">
+                            {% for factor in factors %}
+                            <div class="col-md-6 mb-3">
+                                <div class="factor-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold">{{ factor.factor_name }}</span>
+                                        <span class="badge bg-{% if factor.impact == 'positive' %}success{% elif factor.impact == 'negative' %}danger{% else %}secondary{% endif %}">
+                                            {{ factor.get_impact_display }}
+                                        </span>
+                                    </div>
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-{% if factor.impact == 'positive' %}success{% elif factor.impact == 'negative' %}danger{% else %}secondary{% endif %}" 
+                                             style="width: {{ factor.weight_percentage }}%">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">{{ factor.description }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No credit factors data available. Add credit history to see factor analysis.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Improvement Suggestions -->
+    {% if suggestions %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-arrow-up me-2"></i>Improvement Suggestions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for suggestion in suggestions %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-left-success">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ suggestion.title }}</h6>
+                                    <p class="card-text">{{ suggestion.description }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-plus me-1"></i>+{{ suggestion.potential_points_gain }} points
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>{{ suggestion.timeframe_months }} months
+                                        </small>
+                                    </div>
+                                    <div class="mt-2">
+                                                                <a href="{% url 'credit:mark_suggestion_implemented' suggestion.id %}" 
+                           class="btn btn-sm btn-outline-success">
+                            Implement
+                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Credit History -->
+    {% if recent_history %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Credit History
+                    </h5>
+                    <a href="{% url 'credit:credit_history_list' %}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Score</th>
+                                    <th>Change</th>
+                                    <th>Source</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in recent_history %}
+                                <tr>
+                                    <td>{{ entry.date|date:"M d, Y" }}</td>
+                                    <td>{{ entry.score }}</td>
+                                    <td>
+                                        {% if entry.score_change %}
+                                            <span class="{% if entry.score_change > 0 %}text-success{% else %}text-danger{% endif %}">
+                                                {% if entry.score_change > 0 %}+{% endif %}{{ entry.score_change }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ entry.source|default:"Manual" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

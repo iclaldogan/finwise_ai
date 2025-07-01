@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Investments - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-chart-line me-2"></i>My Investments</h2>
+        <div>
+            <a href="{% url 'investments:investment_create' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus me-2"></i>Add Investment
+            </a>
+            <a href="{% url 'investments:investment_simulator' %}" class="btn btn-outline-info">
+                <i class="fas fa-calculator me-2"></i>Investment Simulator
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5>Total Investments</h5>
+                    <h3>{{ investments_count }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5>Portfolio Value</h5>
+                    <h3>${{ total_portfolio_value|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5>Total Returns</h5>
+                    <h3>${{ total_returns|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5>Return Rate</h5>
+                    <h3>{{ return_percentage|floatformat:1 }}%</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Investments List -->
+    {% if investments %}
+        <div class="row">
+            {% for investment in investments %}
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">{{ investment.name }}</h5>
+                        <span class="badge bg-{{ investment.investment_type.category|lower }}">{{ investment.investment_type.name }}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ investment.description|truncatewords:20 }}</p>
+                        
+                        <!-- Investment Performance -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Performance</span>
+                                <span class="{% if investment.return_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ investment.return_percentage|floatformat:1 }}%
+                                </span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar {% if investment.return_percentage >= 0 %}bg-success{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ investment.return_percentage|add:100 }}%"
+                                     aria-valuenow="{{ investment.return_percentage }}" 
+                                     aria-valuemin="-100" aria-valuemax="100">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="text-muted">Initial: ${{ investment.initial_amount|floatformat:2 }}</small>
+                                <small class="text-muted">Current: ${{ investment.current_value|floatformat:2 }}</small>
+                            </div>
+                        </div>
+
+                        <!-- Investment Details -->
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Purchase Date</small>
+                                <div>{{ investment.purchase_date|date:"M d, Y" }}</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Quantity</small>
+                                <div>{{ investment.quantity|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <small class="text-muted">Purchase Price</small>
+                                <div>${{ investment.purchase_price|floatformat:2 }}</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Current Price</small>
+                                <div>${{ investment.current_price|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{% url 'investments:investment_detail' investment.id %}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{% url 'investments:investment_edit' investment.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{% url 'investments:transaction_create' investment.id %}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-plus"></i> Transaction
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+            <h4>No Investments Found</h4>
+            <p class="text-muted">Start building your investment portfolio by adding your first investment.</p>
+            <a href="{% url 'investments:investment_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add Your First Investment
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-calculator fa-2x text-primary mb-3"></i>
+                    <h5>Investment Simulator</h5>
+                    <p class="text-muted">Simulate different investment strategies and returns.</p>
+                    <a href="{% url 'investments:investment_simulator' %}" class="btn btn-outline-primary">
+                        Try Simulator
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-pie fa-2x text-success mb-3"></i>
+                    <h5>Portfolio Analysis</h5>
+                    <p class="text-muted">Analyze your portfolio performance and allocation.</p>
+                    <a href="{% url 'investments:portfolio_analysis' %}" class="btn btn-outline-success">
+                        View Analysis
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-balance-scale fa-2x text-info mb-3"></i>
+                    <h5>Compare Strategies</h5>
+                    <p class="text-muted">Compare different investment strategies side-by-side.</p>
+                    <a href="{% url 'investments:compare_strategies' %}" class="btn btn-outline-info">
+                        Compare Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

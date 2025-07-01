@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ loan.name }} - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-home me-2 text-primary"></i>
+                    {{ loan.name }}
+                </h1>
+                <div>
+                    <a href="{% url 'loans:loan_edit' loan.pk %}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-2"></i>Edit
+                    </a>
+                    <a href="{% url 'loans:loan_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Loans
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Loan Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Loan Amount:</strong> ${{ loan.amount|floatformat:2 }}</p>
+                            <p><strong>Interest Rate:</strong> {{ loan.interest_rate }}%</p>
+                            <p><strong>Term:</strong> {{ loan.term_years }} years</p>
+                            <p><strong>Monthly Payment:</strong> ${{ loan.monthly_payment|floatformat:2 }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Start Date:</strong> {{ loan.start_date|date:"M d, Y" }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-{% if loan.status == 'active' %}success{% elif loan.status == 'paid_off' %}primary{% else %}secondary{% endif %}">
+                                    {{ loan.get_status_display }}
+                                </span>
+                            </p>
+                            <p><strong>Type:</strong> {{ loan.loan_type.name|default:"N/A" }}</p>
+                            <p><strong>Description:</strong> {{ loan.description|default:"No description" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Schedule -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Recent Payments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if loan.payments.all %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Payment Date</th>
+                                        <th>Amount</th>
+                                        <th>Principal</th>
+                                        <th>Interest</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in loan.payments.all|slice:":10" %}
+                                    <tr>
+                                        <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                        <td>${{ payment.amount|floatformat:2 }}</td>
+                                        <td>${{ payment.principal_amount|floatformat:2|default:"N/A" }}</td>
+                                        <td>${{ payment.interest_amount|floatformat:2|default:"N/A" }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if payment.is_paid %}success{% else %}warning{% endif %}">
+                                                {% if payment.is_paid %}Paid{% else %}Due{% endif %}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No payment records found</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Loan Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Loan Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h4 class="text-primary">${{ loan.remaining_balance|floatformat:2|default:loan.amount }}</h4>
+                        <small class="text-muted">Remaining Balance</small>
+                    </div>
+                    
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-success" 
+                             style="width: {{ loan.payment_progress|default:0 }}%">
+                            {{ loan.payment_progress|default:0|floatformat:1 }}%
+                        </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6>${{ loan.total_paid|floatformat:2|default:"0.00" }}</h6>
+                            <small class="text-muted">Total Paid</small>
+                        </div>
+                        <div class="col-6">
+                            <h6>{{ loan.payments_remaining|default:loan.term_years|mul:12 }}</h6>
+                            <small class="text-muted">Payments Left</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'loans:loan_edit' loan.pk %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i>Edit Loan
+                        </a>
+                        <a href="{% url 'loans:loan_simulator' %}" class="btn btn-outline-info">
+                            <i class="fas fa-calculator me-2"></i>Loan Calculator
+                        </a>
+                        <a href="{% url 'loans:loan_delete' loan.pk %}" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i>Delete Loan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

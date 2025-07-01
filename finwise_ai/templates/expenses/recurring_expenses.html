@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Recurring Expenses - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-sync me-2 text-info"></i>
+                    Recurring Expenses
+                </h1>
+                <a href="{% url 'expenses:expense_home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Upcoming Recurring Expenses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recurring_expenses %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for recurring in recurring_expenses %}
+                                    <tr>
+                                        <td>{{ recurring.date|date:"M d, Y" }}</td>
+                                        <td>{{ recurring.parent_expense.description }}</td>
+                                        <td>${{ recurring.amount|floatformat:2 }}</td>
+                                        <td>
+                                            {% if recurring.parent_expense.category %}
+                                                <span class="badge bg-secondary">{{ recurring.parent_expense.category.name }}</span>
+                                            {% else %}
+                                                <span class="text-muted">No category</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if recurring.is_paid %}
+                                                <span class="badge bg-success">Paid</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'expenses:recurring_expense_edit' recurring.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if not recurring.is_paid %}
+                                            <button class="btn btn-sm btn-outline-success" onclick="markAsPaid({{ recurring.pk }})">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-sync fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No recurring expenses found</h5>
+                            <p class="text-muted">Set up recurring expenses when creating a new expense to see them here.</p>
+                            <a href="{% url 'expenses:expense_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add Expense with Recurrence
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    {% if recurring_expenses %}
+    <div class="row mt-4">
+        <div class="col-lg-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Upcoming</h5>
+                    <h3 class="mb-0">{{ recurring_expenses|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Payment</h5>
+                    <h3 class="mb-0">{{ recurring_expenses|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Monthly Total</h5>
+                    <h3 class="mb-0">${{ recurring_expenses|length }}00.00</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function markAsPaid(recurringId) {
+    if (confirm('Mark this recurring expense as paid?')) {
+        // You can implement AJAX call here to mark as paid
+        fetch('/expenses/recurring/' + recurringId + '/mark-paid/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

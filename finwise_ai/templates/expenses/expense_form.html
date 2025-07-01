@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+
+{% block title %}{{ title }} - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        {{ title|default:"Add Expense" }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">
+                                    <i class="fas fa-edit me-1"></i>Description *
+                                </label>
+                                <input type="text" class="form-control" name="description" id="{{ form.description.id_for_label }}" value="{{ form.description.value|default:'' }}" required>
+                                {% if form.description.errors %}
+                                    <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.amount.id_for_label }}" class="form-label">
+                                    <i class="fas fa-dollar-sign me-1"></i>Amount *
+                                </label>
+                                <input type="number" class="form-control" name="amount" id="{{ form.amount.id_for_label }}" value="{{ form.amount.value|default:'' }}" step="0.01" min="0" required>
+                                {% if form.amount.errors %}
+                                    <div class="text-danger small mt-1">{{ form.amount.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">
+                                    <i class="fas fa-tags me-1"></i>Category
+                                </label>
+                                <select class="form-select" name="category" id="{{ form.category.id_for_label }}">
+                                    <option value="">Select a category</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}" {% if form.category.value == category.id %}selected{% endif %}>
+                                            {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.category.errors %}
+                                    <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar me-1"></i>Date *
+                                </label>
+                                <input type="date" class="form-control" name="date" id="{{ form.date.id_for_label }}" value="{{ form.date.value|default:'' }}" required>
+                                {% if form.date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.recurrence.id_for_label }}" class="form-label">
+                                    <i class="fas fa-sync me-1"></i>Recurrence
+                                </label>
+                                <select class="form-select" name="recurrence" id="{{ form.recurrence.id_for_label }}">
+                                    <option value="">No recurrence</option>
+                                    <option value="daily" {% if form.recurrence.value == 'daily' %}selected{% endif %}>Daily</option>
+                                    <option value="weekly" {% if form.recurrence.value == 'weekly' %}selected{% endif %}>Weekly</option>
+                                    <option value="monthly" {% if form.recurrence.value == 'monthly' %}selected{% endif %}>Monthly</option>
+                                    <option value="yearly" {% if form.recurrence.value == 'yearly' %}selected{% endif %}>Yearly</option>
+                                </select>
+                                {% if form.recurrence.errors %}
+                                    <div class="text-danger small mt-1">{{ form.recurrence.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3" id="recurrence-end-date" style="display: none;">
+                                <label for="{{ form.recurrence_end_date.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar-times me-1"></i>Recurrence End Date
+                                </label>
+                                <input type="date" class="form-control" name="recurrence_end_date" id="{{ form.recurrence_end_date.id_for_label }}" value="{{ form.recurrence_end_date.value|default:'' }}">
+                                {% if form.recurrence_end_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.recurrence_end_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                <i class="fas fa-sticky-note me-1"></i>Notes
+                            </label>
+                            <textarea class="form-control" name="notes" id="{{ form.notes.id_for_label }}" rows="3">{{ form.notes.value|default:'' }}</textarea>
+                            {% if form.notes.errors %}
+                                <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'expenses:expense_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if expense %}Update Expense{% else %}Add Expense{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const recurrenceSelect = document.getElementById('{{ form.recurrence.id_for_label }}');
+    const recurrenceEndDate = document.getElementById('recurrence-end-date');
+    
+    function toggleRecurrenceEndDate() {
+        if (recurrenceSelect.value && recurrenceSelect.value !== '') {
+            recurrenceEndDate.style.display = 'block';
+        } else {
+            recurrenceEndDate.style.display = 'none';
+        }
+    }
+    
+    recurrenceSelect.addEventListener('change', toggleRecurrenceEndDate);
+    toggleRecurrenceEndDate(); // Initialize on page load
+});
+</script>
+{% endblock %} 

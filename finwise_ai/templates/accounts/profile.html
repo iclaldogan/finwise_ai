@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Your Profile</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="mb-4">
+                        <h5>Account Information</h5>
+                        <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                        <p><strong>Email:</strong> {{ user.email }} 
+                            {% if user.email_verified %}
+                                <span class="badge bg-success">Verified</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Not Verified</span>
+                                <a href="{% url 'accounts:resend_verification' %}" class="btn btn-sm btn-outline-primary ms-2">Resend Verification</a>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <h5>Financial Profile</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.monthly_income.id_for_label }}" class="form-label">Monthly Income</label>
+                                {{ form.monthly_income }}
+                                {% if form.monthly_income.errors %}
+                                    <div class="text-danger">
+                                        {{ form.monthly_income.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.preferred_currency.id_for_label }}" class="form-label">Preferred Currency</label>
+                                {{ form.preferred_currency }}
+                                {% if form.preferred_currency.errors %}
+                                    <div class="text-danger">
+                                        {{ form.preferred_currency.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="text-danger">
+                                        {{ form.date_of_birth.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="text-danger">
+                                        {{ form.phone_number.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.risk_profile.id_for_label }}" class="form-label">Risk Profile</label>
+                            {{ form.risk_profile }}
+                            {% if form.risk_profile.errors %}
+                                <div class="text-danger">
+                                    {{ form.risk_profile.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">This helps us tailor investment recommendations to your risk tolerance.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Financial Behavior Traits</label>
+                            <div class="form-check mb-2">
+                                {{ form.savings_focused }}
+                                <label class="form-check-label" for="{{ form.savings_focused.id_for_label }}">
+                                    Savings Focused
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.investment_focused }}
+                                <label class="form-check-label" for="{{ form.investment_focused.id_for_label }}">
+                                    Investment Focused
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                {{ form.budget_conscious }}
+                                <label class="form-check-label" for="{{ form.budget_conscious.id_for_label }}">
+                                    Budget Conscious
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

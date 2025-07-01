@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Investment Portfolio - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-line me-2 text-success"></i>
+                    Investment Portfolio
+                </h1>
+                <a href="{% url 'investments:investment_create' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Add Investment
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Summary -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Value</h5>
+                    <h3 class="mb-0">${{ total_value|floatformat:2|default:"0.00" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Invested</h5>
+                    <h3 class="mb-0">${{ total_invested|floatformat:2|default:"0.00" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Gain/Loss</h5>
+                    <h3 class="mb-0">${{ total_gain_loss|floatformat:2|default:"0.00" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Return %</h5>
+                    <h3 class="mb-0">{{ return_percentage|floatformat:1|default:"0.0" }}%</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Investments List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Your Investments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if investments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Current Value</th>
+                                        <th>Invested Amount</th>
+                                        <th>Gain/Loss</th>
+                                        <th>Return %</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for investment in investments %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ investment.name }}</strong>
+                                            {% if investment.symbol %}
+                                                <br><small class="text-muted">{{ investment.symbol }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                {{ investment.investment_type.name|default:"N/A" }}
+                                            </span>
+                                        </td>
+                                        <td>${{ investment.current_value|floatformat:2 }}</td>
+                                        <td>${{ investment.total_invested|floatformat:2 }}</td>
+                                        <td class="{% if investment.gain_loss >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                            ${{ investment.gain_loss|floatformat:2 }}
+                                        </td>
+                                        <td class="{% if investment.return_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                            {{ investment.return_percentage|floatformat:1 }}%
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'investments:investment_detail' investment.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'investments:investment_edit' investment.pk %}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'investments:investment_delete' investment.pk %}" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No investments found</h5>
+                            <p class="text-muted">Start building your investment portfolio by adding your first investment.</p>
+                            <a href="{% url 'investments:investment_create' %}" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Add Your First Investment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

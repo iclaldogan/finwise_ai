@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Anomaly Detection - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                    Expense Anomaly Detection
+                </h1>
+                <a href="{% url 'expenses:expense_home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Info -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>How it works:</strong> Our system automatically detects expenses that are significantly higher than your usual spending patterns in each category. Review these anomalies to identify potential errors or unusual spending.
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-flag me-2"></i>
+                        Detected Anomalies
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if anomalies %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Expense</th>
+                                        <th>Amount</th>
+                                        <th>Category</th>
+                                        <th>Anomaly Type</th>
+                                        <th>Confidence</th>
+                                        <th>Description</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for anomaly in anomalies %}
+                                    <tr id="anomaly-{{ anomaly.pk }}">
+                                        <td>{{ anomaly.expense.date|date:"M d, Y" }}</td>
+                                        <td>{{ anomaly.expense.description }}</td>
+                                        <td>
+                                            <strong class="text-danger">${{ anomaly.expense.amount|floatformat:2 }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if anomaly.expense.category %}
+                                                <span class="badge bg-secondary">{{ anomaly.expense.category.name }}</span>
+                                            {% else %}
+                                                <span class="text-muted">No category</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning">{{ anomaly.get_anomaly_type_display }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="width: 100px;">
+                                                {% if anomaly.confidence_score > 0.7 %}
+                                                    <div class="progress-bar bg-danger" style="width: {{ anomaly.confidence_score|floatformat:0 }}0%">
+                                                        {{ anomaly.confidence_score|floatformat:0 }}0%
+                                                    </div>
+                                                {% else %}
+                                                    <div class="progress-bar bg-warning" style="width: {{ anomaly.confidence_score|floatformat:0 }}0%">
+                                                        {{ anomaly.confidence_score|floatformat:0 }}0%
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ anomaly.description|truncatechars:50 }}</small>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-success" onclick="reviewAnomaly({{ anomaly.pk }}, false)">
+                                                <i class="fas fa-check me-1"></i>Valid
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="reviewAnomaly({{ anomaly.pk }}, true)">
+                                                <i class="fas fa-times me-1"></i>False Positive
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                            <h5 class="text-success">No anomalies detected</h5>
+                            <p class="text-muted">Great news! All your recent expenses appear to be within normal spending patterns.</p>
+                            <a href="{% url 'expenses:expense_home' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    {% if anomalies %}
+    <div class="row mt-4">
+        <div class="col-lg-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Anomalies</h5>
+                    <h3 class="mb-0">{{ anomalies|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">High Confidence</h5>
+                    <h3 class="mb-0">{{ anomalies|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Amount</h5>
+                    <h3 class="mb-0">${{ anomalies|length }}00.00</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Reviewed</h5>
+                    <h3 class="mb-0">0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function reviewAnomaly(anomalyId, isFalsePositive) {
+    const action = isFalsePositive ? 'mark as false positive' : 'confirm as valid';
+    if (confirm(`Are you sure you want to ${action} this anomaly?`)) {
+        fetch(`/expenses/anomalies/${anomalyId}/reviewed/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `is_false_positive=${isFalsePositive}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Remove the row from the table
+                const row = document.getElementById(`anomaly-${anomalyId}`);
+                row.style.opacity = '0.5';
+                row.style.textDecoration = 'line-through';
+                setTimeout(() => {
+                    row.remove();
+                    // If no more anomalies, reload the page to show the "no anomalies" message
+                    if (document.querySelectorAll('tbody tr').length === 0) {
+                        location.reload();
+                    }
+                }, 1000);
+            } else {
+                alert('Error: ' + (data.message || 'Failed to review anomaly'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing your request.');
+        });
+    }
+}
+</script>
+{% endblock %} 

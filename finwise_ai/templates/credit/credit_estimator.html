@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Credit Score Estimator{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-credit-card me-2"></i>
+                    Credit Score Estimator
+                </h1>
+                <a href="{% url 'credit:credit_home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Credit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calculator me-2"></i>
+                        Credit Score Factors
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="payment_history" class="form-label">Payment History Score (1-10)</label>
+                            <input type="number" class="form-control" id="payment_history" name="payment_history" 
+                                   min="1" max="10" value="{{ request.POST.payment_history|default:'8' }}" required>
+                            <div class="form-text">10 = Never missed payments, 1 = Frequent late payments</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="credit_utilization" class="form-label">Credit Utilization (%)</label>
+                            <input type="number" class="form-control" id="credit_utilization" name="credit_utilization" 
+                                   step="0.1" min="0" max="100" value="{{ request.POST.credit_utilization|default:'30' }}" required>
+                            <div class="form-text">Percentage of available credit you're using</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="credit_history_length" class="form-label">Credit History Length (Years)</label>
+                            <input type="number" class="form-control" id="credit_history_length" name="credit_history_length" 
+                                   min="0" max="50" value="{{ request.POST.credit_history_length|default:'5' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="credit_accounts" class="form-label">Number of Credit Accounts</label>
+                            <input type="number" class="form-control" id="credit_accounts" name="credit_accounts" 
+                                   min="0" max="50" value="{{ request.POST.credit_accounts|default:'3' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recent_inquiries" class="form-label">Hard Inquiries (Last 2 Years)</label>
+                            <input type="number" class="form-control" id="recent_inquiries" name="recent_inquiries" 
+                                   min="0" max="20" value="{{ request.POST.recent_inquiries|default:'2' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="derogatory_marks" class="form-label">Derogatory Marks</label>
+                            <input type="number" class="form-control" id="derogatory_marks" name="derogatory_marks" 
+                                   min="0" max="10" value="{{ request.POST.derogatory_marks|default:'0' }}" required>
+                            <div class="form-text">Bankruptcies, collections, charge-offs, etc.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="total_debt" class="form-label">Total Outstanding Debt</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="total_debt" name="total_debt" 
+                                       step="0.01" min="0" value="{{ request.POST.total_debt|default:'5000' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="monthly_income" class="form-label">Monthly Income</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="monthly_income" name="monthly_income" 
+                                       step="0.01" min="0" value="{{ request.POST.monthly_income|default:'4000' }}">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator me-2"></i>Estimate Credit Score
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            {% if estimated_score %}
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-star me-2"></i>
+                        Estimated Credit Score
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <h1 class="display-1 fw-bold 
+                            {% if estimated_score >= 750 %}text-success
+                            {% elif estimated_score >= 650 %}text-warning
+                            {% else %}text-danger{% endif %}">
+                            {{ estimated_score }}
+                        </h1>
+                        <h4 class="
+                            {% if estimated_score >= 750 %}text-success
+                            {% elif estimated_score >= 700 %}text-info
+                            {% elif estimated_score >= 650 %}text-warning
+                            {% else %}text-danger{% endif %}">
+                            {% if estimated_score >= 800 %}Exceptional
+                            {% elif estimated_score >= 750 %}Very Good
+                            {% elif estimated_score >= 700 %}Good
+                            {% elif estimated_score >= 650 %}Fair
+                            {% elif estimated_score >= 600 %}Poor
+                            {% else %}Very Poor{% endif %}
+                        </h4>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="text-muted mb-1">Score Range</h6>
+                                <p class="mb-0">{{ score_range }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="text-muted mb-1">Loan Approval</h6>
+                                <p class="mb-0">{{ approval_likelihood }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h6>Credit Score Breakdown</h6>
+                        <div class="row text-start">
+                            {% for factor in score_factors %}
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>{{ factor.name }}</span>
+                                    <span class="fw-bold">{{ factor.score }}/{{ factor.max_score }}</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ factor.percentage }}%" 
+                                         aria-valuenow="{{ factor.percentage }}" 
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'credit:improvement_suggestions' %}" class="btn btn-success me-2">
+                            <i class="fas fa-lightbulb me-2"></i>Improvement Tips
+                        </a>
+                        <button class="btn btn-outline-primary" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-credit-card fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">Enter your credit information to get an estimated score</h5>
+                    <p class="text-muted">This estimation is based on common credit scoring factors and provides an approximate range.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if improvement_suggestions %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Improvement Suggestions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for suggestion in improvement_suggestions %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-{{ suggestion.icon }} me-2 text-{{ suggestion.color }}"></i>
+                                        {{ suggestion.title }}
+                                    </h6>
+                                    <p class="card-text">{{ suggestion.description }}</p>
+                                    <small class="text-muted">
+                                        <strong>Impact:</strong> {{ suggestion.impact }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Credit score gauge animation
+{% if estimated_score %}
+document.addEventListener('DOMContentLoaded', function() {
+    const scoreElement = document.querySelector('.display-1');
+    if (scoreElement) {
+        let currentScore = 0;
+        const targetScore = {{ estimated_score }};
+        const increment = targetScore / 50;
+        
+        const timer = setInterval(function() {
+            currentScore += increment;
+            if (currentScore >= targetScore) {
+                currentScore = targetScore;
+                clearInterval(timer);
+            }
+            scoreElement.textContent = Math.floor(currentScore);
+        }, 30);
+    }
+});
+{% endif %}
+</script>
+{% endblock %} 

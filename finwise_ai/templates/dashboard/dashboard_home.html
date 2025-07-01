@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                Financial Dashboard
+            </h1>
+        </div>
+    </div>
+
+    <!-- Financial Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Monthly Expenses</h6>
+                            <h3 class="mb-0">${{ current_month_total|floatformat:2|default:"0" }}</h3>
+                            <small>
+                                {% if mom_change > 0 %}
+                                    <i class="fas fa-arrow-up"></i> +{{ mom_change|floatformat:1 }}%
+                                {% elif mom_change < 0 %}
+                                    <i class="fas fa-arrow-down"></i> {{ mom_change|floatformat:1 }}%
+                                {% else %}
+                                    <i class="fas fa-minus"></i> 0%
+                                {% endif %}
+                                from last month
+                            </small>
+                        </div>
+                        <div>
+                            <i class="fas fa-credit-card fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Savings Rate</h6>
+                            <h3 class="mb-0">{{ savings_rate|floatformat:1|default:"0" }}%</h3>
+                            <small>of monthly income</small>
+                        </div>
+                        <div>
+                            <i class="fas fa-piggy-bank fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Total Debt</h6>
+                            <h3 class="mb-0">${{ total_loan_balance|floatformat:2|default:"0" }}</h3>
+                            <small>across all loans</small>
+                        </div>
+                        <div>
+                            <i class="fas fa-university fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Investment Value</h6>
+                            <h3 class="mb-0">${{ total_investment_value|floatformat:2|default:"0" }}</h3>
+                            <small>
+                                {% if investment_return > 0 %}
+                                    <i class="fas fa-arrow-up"></i> +{{ investment_return|floatformat:1 }}%
+                                {% elif investment_return < 0 %}
+                                    <i class="fas fa-arrow-down"></i> {{ investment_return|floatformat:1 }}%
+                                {% else %}
+                                    <i class="fas fa-minus"></i> 0%
+                                {% endif %}
+                                return
+                            </small>
+                        </div>
+                        <div>
+                            <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Expense Breakdown Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Expense Breakdown
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="expenseChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Spending Trend -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Weekly Spending Trend
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="weeklyChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Savings Goals Progress -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bullseye me-2"></i>
+                        Savings Goals Progress
+                    </h5>
+                    <a href="{% url 'goals:goals_home' %}" class="btn btn-sm btn-outline-primary">
+                        View All Goals
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if savings_goals %}
+                        {% for goal in savings_goals %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-medium">{{ goal.name }}</span>
+                                <span class="text-muted">${{ goal.current_amount|floatformat:0 }} / ${{ goal.target_amount|floatformat:0 }}</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ goal.progress_percentage }}%" 
+                                     aria-valuenow="{{ goal.progress_percentage }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ goal.progress_percentage|floatformat:1 }}% complete</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bullseye fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No savings goals yet.</p>
+                            <a href="{% url 'goals:goal_create' %}" class="btn btn-primary">Create Your First Goal</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'expenses:expense_create' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Add Expense
+                        </a>
+                        <a href="{% url 'goals:goals_home' %}" class="btn btn-outline-success">
+                            <i class="fas fa-coins me-2"></i>View Goals
+                        </a>
+                        <a href="{% url 'loans:loan_simulator' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-calculator me-2"></i>Loan Calculator
+                        </a>
+                        <a href="{% url 'investments:investment_simulator' %}" class="btn btn-outline-info">
+                            <i class="fas fa-chart-line me-2"></i>Investment Simulator
+                        </a>
+                        <a href="{% url 'credit:credit_estimator' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-credit-card me-2"></i>Credit Score Check
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if credit_score %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-star me-2"></i>
+                        Credit Score
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <h2 class="display-4 fw-bold 
+                        {% if credit_score >= 750 %}text-success
+                        {% elif credit_score >= 650 %}text-warning
+                        {% else %}text-danger{% endif %}">
+                        {{ credit_score }}
+                    </h2>
+                    <p class="text-muted">
+                        {% if credit_score >= 750 %}Excellent
+                        {% elif credit_score >= 700 %}Good
+                        {% elif credit_score >= 650 %}Fair
+                        {% else %}Poor{% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Expense breakdown chart
+{% if expense_breakdown %}
+const expenseData = {{ expense_breakdown_json|safe }};
+const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+new Chart(expenseCtx, {
+    type: 'doughnut',
+    data: {
+        labels: expenseData.map(item => item.category),
+        datasets: [{
+            data: expenseData.map(item => item.amount),
+            backgroundColor: [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+{% endif %}
+
+// Weekly spending chart
+{% if weekly_spending %}
+const weeklyData = {{ weekly_spending_json|safe }};
+const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+new Chart(weeklyCtx, {
+    type: 'line',
+    data: {
+        labels: weeklyData.map(item => item.week),
+        datasets: [{
+            label: 'Weekly Spending',
+            data: weeklyData.map(item => item.amount),
+            borderColor: '#36A2EB',
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %} 
