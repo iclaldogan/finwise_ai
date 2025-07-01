@@ -31,7 +31,7 @@ class LoanForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'interest_rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'term_months': forms.NumberInput(attrs={'class': 'form-control'}),
-            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'YYYY-MM-DD'}),
             'monthly_payment': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'is_simulation': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
