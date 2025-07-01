@@ -131,7 +131,7 @@
                             <small class="text-muted">Total Paid</small>
                         </div>
                         <div class="col-6">
-                            <h6>{{ loan.payments_remaining|default:loan.term_years|mul:12 }}</h6>
+                            <h6>{{ loan.term_months|default:"N/A" }}</h6>
                             <small class="text-muted">Payments Left</small>
                         </div>
                     </div>
