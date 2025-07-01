@@ -45,8 +45,12 @@ def loan_home(request):
     context = {
         'active_loans': active_loans,
         'simulated_loans': simulated_loans,
+        'loans': active_loans,  # For template compatibility
+        'loans_count': active_loans.count(),
         'total_debt': total_debt,
         'monthly_payments': monthly_payments,
+        'monthly_payment': monthly_payments,  # For template compatibility
+        'paid_this_month': 0,  # Calculate if needed
         'upcoming_payments': upcoming_payments,
     }
     

@@ -74,6 +74,15 @@ def expense_home(request):
     # Get recurring expenses
     recurring_expenses = expenses.filter(recurrence__in=['daily', 'weekly', 'monthly', 'yearly']).order_by('-date')[:5]
     
+    # Calculate this month's expenses
+    current_month_start = today.replace(day=1)
+    this_month_expenses = expenses.filter(date__gte=current_month_start, date__lte=today)
+    this_month_total = this_month_expenses.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    # Calculate average per day (this month)
+    days_in_month = (today - current_month_start).days + 1
+    avg_per_day = this_month_total / days_in_month if days_in_month > 0 else 0
+    
     context = {
         'expenses': expenses.order_by('-date')[:10],
         'filter_form': form,
@@ -82,6 +91,8 @@ def expense_home(request):
         'flagged_expenses': flagged_expenses,
         'recurring_expenses': recurring_expenses,
         'total_expenses': expenses.aggregate(Sum('amount'))['amount__sum'] or 0,
+        'this_month_total': this_month_total,
+        'avg_per_day': avg_per_day,
         'avg_monthly': expenses.filter(date__gte=six_months_ago).aggregate(Avg('amount'))['amount__avg'] or 0,
     }
     

@@ -25,15 +25,23 @@
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Expenses</h5>
-                    <h3 class="mb-0">${{ total_expenses|floatformat:2|default:"0" }}</h3>
+                    <h3 class="mb-0">₺{{ total_expenses|floatformat:2|default:"0" }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card bg-success text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Average Monthly</h5>
-                    <h3 class="mb-0">${{ avg_monthly|floatformat:2|default:"0" }}</h3>
+                    <h5 class="card-title">This Month</h5>
+                    <h3 class="mb-0">₺{{ this_month_total|floatformat:2|default:"0" }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Average per Day</h5>
+                    <h3 class="mb-0">₺{{ avg_per_day|floatformat:2|default:"0" }}</h3>
                 </div>
             </div>
         </div>
@@ -42,14 +50,6 @@
                 <div class="card-body">
                     <h5 class="card-title">Flagged Expenses</h5>
                     <h3 class="mb-0">{{ flagged_expenses|length }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Recurring Expenses</h5>
-                    <h3 class="mb-0">{{ recurring_expenses|length }}</h3>
                 </div>
             </div>
         </div>
