@@ -25,7 +25,7 @@ class LoanForm(forms.ModelForm):
     class Meta:
         model = Loan
         fields = ['loan_type', 'amount', 'interest_rate', 'term_months', 'start_date', 
-                 'monthly_payment', 'status', 'is_simulation']
+                 'monthly_payment', 'status', 'is_simulation', 'description']
         widgets = {
             'loan_type': forms.Select(attrs={'class': 'form-select'}),
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
@@ -35,6 +35,7 @@ class LoanForm(forms.ModelForm):
             'monthly_payment': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'is_simulation': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
     
     def __init__(self, *args, **kwargs):

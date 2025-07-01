@@ -39,6 +39,28 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar-alt me-1"></i>Start Date *
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.target_date.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar-check me-1"></i>Target Date *
+                                </label>
+                                {{ form.target_date }}
+                                {% if form.target_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.target_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="{{ form.description.id_for_label }}" class="form-label">
                                 <i class="fas fa-align-left me-1"></i>Description
@@ -51,12 +73,12 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.target_date.id_for_label }}" class="form-label">
-                                    <i class="fas fa-calendar me-1"></i>Target Date
+                                <label for="{{ form.status.id_for_label }}" class="form-label">
+                                    <i class="fas fa-check-circle me-1"></i>Status
                                 </label>
-                                {{ form.target_date }}
-                                {% if form.target_date.errors %}
-                                    <div class="text-danger small mt-1">{{ form.target_date.errors.0 }}</div>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
                                 {% endif %}
                             </div>
                             
@@ -67,28 +89,6 @@
                                 {{ form.priority }}
                                 {% if form.priority.errors %}
                                     <div class="text-danger small mt-1">{{ form.priority.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.category.id_for_label }}" class="form-label">
-                                    <i class="fas fa-tags me-1"></i>Category
-                                </label>
-                                {{ form.category }}
-                                {% if form.category.errors %}
-                                    <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.status.id_for_label }}" class="form-label">
-                                    <i class="fas fa-check-circle me-1"></i>Status
-                                </label>
-                                {{ form.status }}
-                                {% if form.status.errors %}
-                                    <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
