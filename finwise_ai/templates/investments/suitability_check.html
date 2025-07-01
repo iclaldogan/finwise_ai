@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Investment Suitability Check - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-user-check me-2 text-success"></i>
+                    Yatırım Uygunluk Testi
+                </h1>
+                <a href="{% url 'investments:investments_home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Yatırımlara Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Kişisel Bilgiler ve Risk Profili
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Bu test, size en uygun yatırım araçlarını belirlemek için tasarlanmıştır. Lütfen soruları dürüstçe yanıtlayın.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">Kişisel Bilgiler</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="age" class="form-label">Yaşınız</label>
+                                    <input type="number" class="form-control" id="age" name="age" min="18" max="100" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="income" class="form-label">Yıllık Geliriniz (₺)</label>
+                                    <input type="number" class="form-control" id="income" name="income" step="1000" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="savings" class="form-label">Toplam Birikimleriniz (₺)</label>
+                                    <input type="number" class="form-control" id="savings" name="savings" step="1000" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="debt" class="form-label">Toplam Borcunuz (₺)</label>
+                                    <input type="number" class="form-control" id="debt" name="debt" step="1000" min="0" value="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Risk Profile -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">Risk Profili</h6>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Risk Toleransınız</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="risk_tolerance" id="risk_low" value="low" required>
+                                        <label class="form-check-label" for="risk_low">
+                                            <strong>Düşük:</strong> Sermayemi korumak istiyorum, kayıp yaşamak istemiyorum
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="risk_tolerance" id="risk_medium" value="medium" required>
+                                        <label class="form-check-label" for="risk_medium">
+                                            <strong>Orta:</strong> Makul getiri için sınırlı risk alabilirim
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="risk_tolerance" id="risk_high" value="high" required>
+                                        <label class="form-check-label" for="risk_high">
+                                            <strong>Yüksek:</strong> Yüksek getiri için yüksek risk alabilirim
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Yatırım Deneyiminiz</label>
+                                    <select class="form-select" name="investment_experience" required>
+                                        <option value="">Seçiniz...</option>
+                                        <option value="beginner">Başlangıç - Hiç yatırım yapmadım</option>
+                                        <option value="intermediate">Orta - Birkaç yıl deneyimim var</option>
+                                        <option value="advanced">İleri - Uzun yıllardır yatırım yapıyorum</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="time_horizon" class="form-label">Yatırım Süreniz (Yıl)</label>
+                                    <select class="form-select" name="time_horizon" required>
+                                        <option value="">Seçiniz...</option>
+                                        <option value="1">1 yıl</option>
+                                        <option value="3">3 yıl</option>
+                                        <option value="5">5 yıl</option>
+                                        <option value="10">10 yıl</option>
+                                        <option value="20">20+ yıl</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Investment Goals -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">Yatırım Hedefleriniz</h6>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="investment_goals" value="retirement" id="goal_retirement">
+                                    <label class="form-check-label" for="goal_retirement">
+                                        Emeklilik için birikim
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="investment_goals" value="house" id="goal_house">
+                                    <label class="form-check-label" for="goal_house">
+                                        Ev satın alma
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="investment_goals" value="education" id="goal_education">
+                                    <label class="form-check-label" for="goal_education">
+                                        Eğitim masrafları
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="investment_goals" value="wealth" id="goal_wealth">
+                                    <label class="form-check-label" for="goal_wealth">
+                                        Servet oluşturma
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="investment_goals" value="income" id="goal_income">
+                                    <label class="form-check-label" for="goal_income">
+                                        Düzenli gelir elde etme
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calculator me-2"></i>
+                                Uygunluk Analizini Başlat
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

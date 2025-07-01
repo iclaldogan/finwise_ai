@@ -24,7 +24,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card bg-primary text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Total Expenses</h5>
+                    <h5 class="card-title">Toplam Giderler</h5>
                     <h3 class="mb-0">₺{{ total_expenses|floatformat:2|default:"0" }}</h3>
                 </div>
             </div>
@@ -32,7 +32,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card bg-success text-white">
                 <div class="card-body">
-                    <h5 class="card-title">This Month</h5>
+                    <h5 class="card-title">Bu Ay</h5>
                     <h3 class="mb-0">₺{{ this_month_total|floatformat:2|default:"0" }}</h3>
                 </div>
             </div>
@@ -40,7 +40,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card bg-info text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Average per Day</h5>
+                    <h5 class="card-title">Günlük Ortalama</h5>
                     <h3 class="mb-0">₺{{ avg_per_day|floatformat:2|default:"0" }}</h3>
                 </div>
             </div>
@@ -48,7 +48,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card bg-warning text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Flagged Expenses</h5>
+                    <h5 class="card-title">İşaretli Giderler</h5>
                     <h3 class="mb-0">{{ flagged_expenses|length }}</h3>
                 </div>
             </div>
@@ -88,7 +88,7 @@
                                                 <span class="text-muted">No category</span>
                                             {% endif %}
                                         </td>
-                                        <td>${{ expense.amount|floatformat:2 }}</td>
+                                        <td>₺{{ expense.amount|floatformat:2 }}</td>
                                         <td>
                                             <a href="{% url 'expenses:expense_edit' expense.pk %}" class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-edit"></i>

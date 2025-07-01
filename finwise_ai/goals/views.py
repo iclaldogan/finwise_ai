@@ -117,24 +117,24 @@ def goal_detail(request, pk):
             'running_total': running_total
         })
     
-        # Convert Decimal to float for JSON serialization
-        contribution_history_json = []
-        for item in contribution_history:
-            contribution_history_json.append({
-                'amount': float(item['amount']),
-                'date': item['date'],
-                'running_total': float(item['running_total'])
-            })
-        
-        context = {
-            'goal': goal,
-            'contributions': contributions,
-            'milestones': milestones,
-            'days_remaining': days_remaining,
-            'months_remaining': months_remaining,
-            'required_monthly': required_monthly,
-            'contribution_history': json.dumps(contribution_history_json),
-        }
+    # Convert Decimal to float for JSON serialization
+    contribution_history_json = []
+    for item in contribution_history:
+        contribution_history_json.append({
+            'amount': float(item['amount']),
+            'date': item['date'],
+            'running_total': float(item['running_total'])
+        })
+    
+    context = {
+        'goal': goal,
+        'contributions': contributions,
+        'milestones': milestones,
+        'days_remaining': days_remaining,
+        'months_remaining': months_remaining,
+        'required_monthly': required_monthly,
+        'contribution_history': json.dumps(contribution_history_json),
+    }
     
     return render(request, 'goals/goal_detail.html', context)
 

@@ -10,8 +10,8 @@
             <h5>{{ investment.name }} Details</h5>
         </div>
         <div class="card-body">
-            <p><strong>Current Value:</strong> ${{ investment.current_value|floatformat:2 }}</p>
-            <p><strong>Purchase Price:</strong> ${{ investment.purchase_price|floatformat:2 }}</p>
+            <p><strong>Current Value:</strong> ₺{{ investment.current_value|floatformat:2 }}</p>
+            <p><strong>Purchase Price:</strong> ₺{{ investment.purchase_price|floatformat:2 }}</p>
             <p><strong>Shares:</strong> {{ investment.shares }}</p>
             <a href="{% url 'investments:investment_list' %}" class="btn btn-secondary">Back to Investments</a>
         </div>

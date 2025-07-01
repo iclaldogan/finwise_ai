@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Strategy Comparison Results - FinWise AI{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-line me-2 text-primary"></i>
+                    Yatırım Stratejisi Karşılaştırması
+                </h1>
+                <a href="{% url 'investments:compare_strategies' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Yeni Karşılaştırma
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Toplu Yatırım</h5>
+                    <h3 class="mb-0">₺{{ lump_sum_final|floatformat:2 }}</h3>
+                    <small>Toplam Yatırım: ₺{{ lump_sum_invested|floatformat:2 }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Düzenli Yatırım (DCA)</h5>
+                    <h3 class="mb-0">₺{{ dca_final|floatformat:2 }}</h3>
+                    <small>Toplam Yatırım: ₺{{ dca_invested|floatformat:2 }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Değer Ortalaması</h5>
+                    <h3 class="mb-0">₺{{ value_averaging_final|floatformat:2 }}</h3>
+                    <small>Toplam Yatırım: ₺{{ value_averaging_invested|floatformat:2 }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-area me-2"></i>
+                        Strateji Performans Karşılaştırması
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="strategyChart" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>
+                        En İyi Performans
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if lump_sum_final >= dca_final and lump_sum_final >= value_averaging_final %}
+                        <div class="alert alert-primary">
+                            <h6><i class="fas fa-medal me-2"></i>Toplu Yatırım Stratejisi</h6>
+                            <p class="mb-0">Bu senaryoda toplu yatırım en yüksek getiriyi sağladı.</p>
+                        </div>
+                    {% elif dca_final >= lump_sum_final and dca_final >= value_averaging_final %}
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-medal me-2"></i>Düzenli Yatırım (DCA) Stratejisi</h6>
+                            <p class="mb-0">Bu senaryoda düzenli yatırım en yüksek getiriyi sağladı.</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-medal me-2"></i>Değer Ortalaması Stratejisi</h6>
+                            <p class="mb-0">Bu senaryoda değer ortalaması en yüksek getiriyi sağladı.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Yatırım Parametreleri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><strong>Başlangıç Tutarı:</strong> ₺{{ initial_amount|floatformat:2 }}</li>
+                        <li><strong>Aylık Katkı:</strong> ₺{{ monthly_amount|floatformat:2 }}</li>
+                        <li><strong>Yatırım Süresi:</strong> {{ duration_years }} yıl</li>
+                        <li><strong>Beklenen Getiri:</strong> {{ expected_return }}%</li>
+                        <li><strong>Volatilite:</strong> {{ volatility }}%</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Strategy Explanations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Strateji Açıklamaları
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6 class="text-primary">Toplu Yatırım</h6>
+                            <p class="small text-muted">Tüm paranızı bir seferde yatırım yapma stratejisi. Piyasa yükselişte ise en yüksek getiriyi sağlar.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-success">Düzenli Yatırım (DCA)</h6>
+                            <p class="small text-muted">Belirli aralıklarla sabit miktarda yatırım yapma stratejisi. Piyasa volatilitesini azaltır.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-info">Değer Ortalaması</h6>
+                            <p class="small text-muted">Hedef değere ulaşmak için katkı miktarını ayarlama stratejisi. Daha aktif yönetim gerektirir.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Strategy comparison chart
+const lumpSumData = {{ lump_sum_data|safe }};
+const dcaData = {{ dca_data|safe }};
+const valueAveragingData = {{ value_averaging_data|safe }};
+
+const ctx = document.getElementById('strategyChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: lumpSumData.map((_, index) => `Ay ${index}`),
+        datasets: [{
+            label: 'Toplu Yatırım',
+            data: lumpSumData.map(item => item.value),
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.1
+        }, {
+            label: 'Düzenli Yatırım (DCA)',
+            data: dcaData.map(item => item.value),
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.1
+        }, {
+            label: 'Değer Ortalaması',
+            data: valueAveragingData.map(item => item.value),
+            borderColor: '#17a2b8',
+            backgroundColor: 'rgba(23, 162, 184, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '₺' + value.toLocaleString('tr-TR');
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
+

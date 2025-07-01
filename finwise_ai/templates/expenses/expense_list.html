@@ -47,24 +47,24 @@
         <div class="col-md-4">
             <div class="card text-white bg-primary">
                 <div class="card-body">
-                    <h5>Total Expenses</h5>
-                    <h3>${{ total_amount|floatformat:2 }}</h3>
+                    <h5>Toplam Giderler</h5>
+                    <h3>₺{{ total_amount|floatformat:2 }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card text-white bg-success">
                 <div class="card-body">
-                    <h5>This Month</h5>
-                    <h3>${{ this_month_amount|floatformat:2 }}</h3>
+                    <h5>Bu Ay</h5>
+                    <h3>₺{{ this_month_amount|floatformat:2 }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card text-white bg-info">
                 <div class="card-body">
-                    <h5>Average per Day</h5>
-                    <h3>${{ daily_average|floatformat:2 }}</h3>
+                    <h5>Günlük Ortalama</h5>
+                    <h3>₺{{ daily_average|floatformat:2 }}</h3>
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@
                                         <span class="text-muted">Uncategorized</span>
                                     {% endif %}
                                 </td>
-                                <td>${{ expense.amount|floatformat:2 }}</td>
+                                <td>₺{{ expense.amount|floatformat:2 }}</td>
                                 <td>
                                     {% if expense.recurrence and expense.recurrence != 'none' %}
                                         <span class="badge bg-info">{{ expense.get_recurrence_display }}</span>

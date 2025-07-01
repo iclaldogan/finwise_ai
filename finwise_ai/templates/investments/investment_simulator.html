@@ -33,21 +33,21 @@
                         {% csrf_token %}
                         
                         <div class="mb-3">
-                            <label for="initial_amount" class="form-label">Initial Investment Amount</label>
+                            <label for="initial_amount" class="form-label">Başlangıç Yatırım Tutarı</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">₺</span>
                                 <input type="number" class="form-control" id="initial_amount" name="initial_amount" 
                                        step="0.01" min="0" value="{{ request.POST.initial_amount|default:'' }}" required>
                             </div>
                             <div class="invalid-feedback">
-                                Please provide a valid initial investment amount.
+                                Lütfen geçerli bir başlangıç yatırım tutarı girin.
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="monthly_contribution" class="form-label">Monthly Contribution</label>
+                            <label for="monthly_contribution" class="form-label">Aylık Katkı</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">₺</span>
                                 <input type="number" class="form-control" id="monthly_contribution" name="monthly_contribution" 
                                        step="0.01" min="0" value="{{ request.POST.monthly_contribution|default:'' }}">
                             </div>

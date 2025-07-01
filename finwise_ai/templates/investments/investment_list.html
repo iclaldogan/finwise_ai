@@ -25,7 +25,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Value</h5>
-                    <h3 class="mb-0">${{ total_value|floatformat:2|default:"0.00" }}</h3>
+                    <h3 class="mb-0">₺{{ total_value|floatformat:2|default:"0.00" }}</h3>
                 </div>
             </div>
         </div>
@@ -33,7 +33,7 @@
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Invested</h5>
-                    <h3 class="mb-0">${{ total_invested|floatformat:2|default:"0.00" }}</h3>
+                    <h3 class="mb-0">₺{{ total_invested|floatformat:2|default:"0.00" }}</h3>
                 </div>
             </div>
         </div>
@@ -41,7 +41,7 @@
             <div class="card bg-info text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Gain/Loss</h5>
-                    <h3 class="mb-0">${{ total_gain_loss|floatformat:2|default:"0.00" }}</h3>
+                    <h3 class="mb-0">₺{{ total_gain_loss|floatformat:2|default:"0.00" }}</h3>
                 </div>
             </div>
         </div>
@@ -94,10 +94,10 @@
                                                 {{ investment.investment_type.name|default:"N/A" }}
                                             </span>
                                         </td>
-                                        <td>${{ investment.current_value|floatformat:2 }}</td>
-                                        <td>${{ investment.total_invested|floatformat:2 }}</td>
+                                        <td>₺{{ investment.current_value|floatformat:2 }}</td>
+                                        <td>₺{{ investment.total_invested|floatformat:2 }}</td>
                                         <td class="{% if investment.gain_loss >= 0 %}text-success{% else %}text-danger{% endif %}">
-                                            ${{ investment.gain_loss|floatformat:2 }}
+                                            ₺{{ investment.gain_loss|floatformat:2 }}
                                         </td>
                                         <td class="{% if investment.return_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
                                             {{ investment.return_percentage|floatformat:1 }}%

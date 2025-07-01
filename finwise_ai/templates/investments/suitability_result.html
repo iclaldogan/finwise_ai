@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}Suitability Assessment Results - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-pie me-2 text-success"></i>
+                    Yatırım Uygunluk Analizi Sonuçları
+                </h1>
+                <a href="{% url 'investments:suitability_check' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-redo me-2"></i>Yeni Test
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suitability Score -->
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Uygunluk Puanınız</h5>
+                    <div class="display-4 mb-3">
+                        {% if suitability_score >= 80 %}
+                            <span class="text-success">{{ suitability_score }}</span>
+                        {% elif suitability_score >= 60 %}
+                            <span class="text-warning">{{ suitability_score }}</span>
+                        {% else %}
+                            <span class="text-danger">{{ suitability_score }}</span>
+                        {% endif %}
+                        <small class="text-muted">/100</small>
+                    </div>
+                    <div class="progress mb-3">
+                        {% if suitability_score >= 80 %}
+                            <div class="progress-bar bg-success" style="width: {{ suitability_score }}%"></div>
+                        {% elif suitability_score >= 60 %}
+                            <div class="progress-bar bg-warning" style="width: {{ suitability_score }}%"></div>
+                        {% else %}
+                            <div class="progress-bar bg-danger" style="width: {{ suitability_score }}%"></div>
+                        {% endif %}
+                    </div>
+                    <p class="card-text">
+                        {% if suitability_score >= 80 %}
+                            <span class="badge bg-success">Yüksek Risk Kapasitesi</span>
+                        {% elif suitability_score >= 60 %}
+                            <span class="badge bg-warning">Orta Risk Kapasitesi</span>
+                        {% else %}
+                            <span class="badge bg-danger">Düşük Risk Kapasitesi</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Profil Özeti</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><strong>Yaş:</strong> {{ age }}</li>
+                                <li><strong>Yıllık Gelir:</strong> ₺{{ income|floatformat:0 }}</li>
+                                <li><strong>Birikimler:</strong> ₺{{ savings|floatformat:0 }}</li>
+                                <li><strong>Borçlar:</strong> ₺{{ debt|floatformat:0 }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><strong>Risk Toleransı:</strong> 
+                                    {% if risk_tolerance == 'low' %}Düşük
+                                    {% elif risk_tolerance == 'medium' %}Orta
+                                    {% else %}Yüksek{% endif %}
+                                </li>
+                                <li><strong>Deneyim:</strong> 
+                                    {% if investment_experience == 'beginner' %}Başlangıç
+                                    {% elif investment_experience == 'intermediate' %}Orta
+                                    {% else %}İleri{% endif %}
+                                </li>
+                                <li><strong>Yatırım Süresi:</strong> {{ time_horizon }} yıl</li>
+                                <li><strong>Hedefler:</strong> {{ investment_goals|length }} adet</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suitable Investments -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-thumbs-up me-2"></i>
+                        Size Uygun Yatırım Araçları
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for investment in suitable_investments %}
+                        <div class="col-lg-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title">{{ investment.name }}</h6>
+                                        <span class="badge bg-{% if investment.risk_level <= 2 %}success{% elif investment.risk_level <= 3 %}warning{% else %}danger{% endif %}">
+                                            Risk: {{ investment.risk_level }}/5
+                                        </span>
+                                    </div>
+                                    <p class="card-text small text-muted">{{ investment.description }}</p>
+                                    <div class="text-end">
+                                        <small class="text-success"><strong>Beklenen Getiri: {{ investment.expected_return }}</strong></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Kişiselleştirilmiş Öneriler
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for recommendation in recommendations %}
+                    <div class="alert alert-{% if recommendation.type == 'allocation' %}primary{% elif recommendation.type == 'emergency_fund' %}warning{% else %}info{% endif %}">
+                        <h6 class="alert-heading">
+                            {% if recommendation.type == 'allocation' %}
+                                <i class="fas fa-chart-pie me-2"></i>
+                            {% elif recommendation.type == 'emergency_fund' %}
+                                <i class="fas fa-shield-alt me-2"></i>
+                            {% else %}
+                                <i class="fas fa-calendar-alt me-2"></i>
+                            {% endif %}
+                            {{ recommendation.title }}
+                        </h6>
+                        <p class="mb-0">{{ recommendation.description }}</p>
+                        
+                        {% if recommendation.type == 'allocation' %}
+                        <div class="mt-3">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="progress mb-1">
+                                        <div class="progress-bar bg-primary" style="width: {{ recommendation.allocation.stocks }}%">
+                                            Hisse Senetleri %{{ recommendation.allocation.stocks }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="progress mb-1">
+                                        <div class="progress-bar bg-secondary" style="width: {{ recommendation.allocation.bonds }}%">
+                                            Tahviller %{{ recommendation.allocation.bonds }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if recommendation.amount %}
+                        <div class="mt-2">
+                            <strong>Önerilen Tutar: ₺{{ recommendation.amount|floatformat:0 }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Sonraki Adımlar</h5>
+                    <p class="card-text">Analiz sonuçlarınıza göre yatırım yapmaya hazırsınız!</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'investments:investment_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Yatırım Ekle
+                        </a>
+                        <a href="{% url 'investments:investment_simulator' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-calculator me-2"></i>Simülasyon Yap
+                        </a>
+                        <a href="{% url 'investments:compare_strategies' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-chart-line me-2"></i>Strateji Karşılaştır
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

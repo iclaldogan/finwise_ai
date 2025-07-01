@@ -26,4 +26,5 @@ urlpatterns = [
     # Analysis
     path('compare-strategies/', views.compare_strategies, name='compare_strategies'),
     path('portfolio-analysis/', views.portfolio_analysis, name='portfolio_analysis'),
+    path('suitability-check/', views.suitability_check, name='suitability_check'),
 ] 

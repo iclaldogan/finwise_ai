@@ -36,10 +36,10 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Loan Amount:</strong> ${{ loan.amount|floatformat:2 }}</p>
+                            <p><strong>Loan Amount:</strong> ₺{{ loan.amount|floatformat:2 }}</p>
                             <p><strong>Interest Rate:</strong> {{ loan.interest_rate }}%</p>
                             <p><strong>Term:</strong> {{ loan.term_years }} years</p>
-                            <p><strong>Monthly Payment:</strong> ${{ loan.monthly_payment|floatformat:2 }}</p>
+                            <p><strong>Monthly Payment:</strong> ₺{{ loan.monthly_payment|floatformat:2 }}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Start Date:</strong> {{ loan.start_date|date:"M d, Y" }}</p>
@@ -80,9 +80,9 @@
                                     {% for payment in loan.payments.all|slice:":10" %}
                                     <tr>
                                         <td>{{ payment.payment_date|date:"M d, Y" }}</td>
-                                        <td>${{ payment.amount|floatformat:2 }}</td>
-                                        <td>${{ payment.principal_amount|floatformat:2|default:"N/A" }}</td>
-                                        <td>${{ payment.interest_amount|floatformat:2|default:"N/A" }}</td>
+                                        <td>₺{{ payment.amount|floatformat:2 }}</td>
+                                        <td>₺{{ payment.principal_amount|floatformat:2|default:"N/A" }}</td>
+                                        <td>₺{{ payment.interest_amount|floatformat:2|default:"N/A" }}</td>
                                         <td>
                                             <span class="badge bg-{% if payment.is_paid %}success{% else %}warning{% endif %}">
                                                 {% if payment.is_paid %}Paid{% else %}Due{% endif %}
@@ -114,7 +114,7 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        <h4 class="text-primary">${{ loan.remaining_balance|floatformat:2|default:loan.amount }}</h4>
+                        <h4 class="text-primary">₺{{ loan.remaining_balance|floatformat:2|default:loan.amount }}</h4>
                         <small class="text-muted">Remaining Balance</small>
                     </div>
                     
@@ -127,7 +127,7 @@
 
                     <div class="row text-center">
                         <div class="col-6">
-                            <h6>${{ loan.total_paid|floatformat:2|default:"0.00" }}</h6>
+                            <h6>₺{{ loan.total_paid|floatformat:2|default:"0.00" }}</h6>
                             <small class="text-muted">Total Paid</small>
                         </div>
                         <div class="col-6">

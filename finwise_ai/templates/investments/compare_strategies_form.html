@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Strateji Karşılaştırması - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-balance-scale me-2 text-primary"></i>
+                    Yatırım Stratejisi Karşılaştırması
+                </h1>
+                <a href="{% url 'investments:investments_home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Yatırımlara Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Strateji Parametreleri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="investment_type" class="form-label">Yatırım Türü</label>
+                                <select class="form-select" id="investment_type" name="investment_type" required>
+                                    <option value="">Seçiniz...</option>
+                                    {% for type in investment_types %}
+                                        <option value="{{ type.name }}">{{ type.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="initial_amount" class="form-label">Başlangıç Tutarı (₺)</label>
+                                <input type="number" class="form-control" id="initial_amount" name="initial_amount" 
+                                       step="0.01" min="0" value="10000" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="monthly_amount" class="form-label">Aylık Yatırım (₺)</label>
+                                <input type="number" class="form-control" id="monthly_amount" name="monthly_amount" 
+                                       step="0.01" min="0" value="1000" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="duration_years" class="form-label">Süre (Yıl)</label>
+                                <input type="number" class="form-control" id="duration_years" name="duration_years" 
+                                       min="1" max="50" value="10" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="expected_return" class="form-label">Beklenen Getiri (%)</label>
+                                <input type="number" class="form-control" id="expected_return" name="expected_return" 
+                                       step="0.1" min="0" max="100" value="8.0" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="volatility" class="form-label">Volatilite (%)</label>
+                                <input type="number" class="form-control" id="volatility" name="volatility" 
+                                       step="0.1" min="0" max="100" value="15.0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-calculator me-2"></i>Stratejileri Karşılaştır
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

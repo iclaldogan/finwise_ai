@@ -355,48 +355,77 @@ def expense_analytics(request):
     # Get all expenses for the user
     expenses = Expense.objects.filter(user=request.user)
     
-    # Convert to pandas DataFrame for analysis
-    expense_data = list(expenses.values('date', 'amount', 'category__name', 'description'))
-    df = pd.DataFrame(expense_data)
+    if not expenses.exists():
+        context = {'no_data': True}
+        return render(request, 'expenses/expense_analytics.html', context)
     
-    if not df.empty:
-        # Convert date to datetime
-        df['date'] = pd.to_datetime(df['date'])
-        
-        # Monthly trend
-        monthly_trend = df.groupby(df['date'].dt.strftime('%Y-%m')).agg({
-            'amount': 'sum'
-        }).reset_index()
-        monthly_trend = monthly_trend.sort_values('date')
-        
-        # Category breakdown
-        category_breakdown = df.groupby('category__name').agg({
-            'amount': 'sum'
-        }).reset_index()
-        category_breakdown = category_breakdown.sort_values('amount', ascending=False)
-        
-        # Day of week analysis
-        df['day_of_week'] = df['date'].dt.day_name()
-        day_of_week = df.groupby('day_of_week').agg({
-            'amount': 'sum'
-        }).reset_index()
-        
-        # Largest expenses
-        largest_expenses = df.sort_values('amount', ascending=False).head(10)
-        
-        context = {
-            'monthly_trend': monthly_trend.to_dict('records'),
-            'category_breakdown': category_breakdown.to_dict('records'),
-            'day_of_week': day_of_week.to_dict('records'),
-            'largest_expenses': largest_expenses.to_dict('records'),
-            'total_expenses': df['amount'].sum(),
-            'avg_monthly': df.groupby(df['date'].dt.strftime('%Y-%m'))['amount'].sum().mean(),
-            'num_transactions': len(df),
-        }
-    else:
-        context = {
-            'no_data': True
-        }
+    # Monthly trend analysis - Use Python date formatting instead of SQL
+    from collections import defaultdict
+    monthly_totals = defaultdict(float)
+    
+    for expense in expenses:
+        month_key = expense.date.strftime('%Y-%m')
+        monthly_totals[month_key] += float(expense.amount)
+    
+    # Sort by month and prepare data
+    monthly_data = []
+    for month in sorted(monthly_totals.keys()):
+        month_display = datetime.strptime(month, '%Y-%m').strftime('%b %Y')
+        monthly_data.append({
+            'date': month_display,
+            'amount': monthly_totals[month]
+        })
+    
+    # Category breakdown
+    category_totals = defaultdict(float)
+    for expense in expenses:
+        category_name = expense.category.name if expense.category else 'Uncategorized'
+        category_totals[category_name] += float(expense.amount)
+    
+    category_data = []
+    for category, total in sorted(category_totals.items(), key=lambda x: x[1], reverse=True):
+        category_data.append({
+            'category__name': category,
+            'amount': total
+        })
+    
+    # Day of week analysis
+    day_totals = defaultdict(float)
+    day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    for expense in expenses:
+        day_name = day_names[expense.date.weekday()]
+        day_totals[day_name] += float(expense.amount)
+    
+    day_data = []
+    for day in day_names:
+        if day in day_totals:
+            day_data.append({
+                'day_of_week': day,
+                'amount': day_totals[day]
+            })
+    
+    # Largest expenses
+    largest_expenses = expenses.order_by('-amount')[:10]
+    
+    # Prepare data for Chart.js
+    monthly_trend_json = json.dumps(monthly_data)
+    category_breakdown_json = json.dumps(category_data)
+    
+    # Calculate totals
+    total_expenses = sum(float(expense.amount) for expense in expenses)
+    num_transactions = expenses.count()
+    avg_monthly = total_expenses / len(monthly_data) if monthly_data else 0
+    
+    context = {
+        'monthly_trend': monthly_trend_json,
+        'category_breakdown': category_breakdown_json,
+        'day_of_week': day_data,
+        'largest_expenses': largest_expenses,
+        'total_expenses': total_expenses,
+        'avg_monthly': avg_monthly,
+        'num_transactions': num_transactions,
+    }
     
     return render(request, 'expenses/expense_analytics.html', context)
 

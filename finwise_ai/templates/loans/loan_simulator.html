@@ -88,13 +88,13 @@
                         <div class="col-6">
                             <div class="text-center p-3 bg-primary text-white rounded">
                                 <h6 class="mb-1">Monthly Payment</h6>
-                                <h4 class="mb-0">${{ results.monthly_payment|floatformat:2 }}</h4>
+                                <h4 class="mb-0">₺{{ results.monthly_payment|floatformat:2 }}</h4>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="text-center p-3 bg-success text-white rounded">
                                 <h6 class="mb-1">Total Interest</h6>
-                                <h4 class="mb-0">${{ results.total_interest|floatformat:2 }}</h4>
+                                <h4 class="mb-0">₺{{ results.total_interest|floatformat:2 }}</h4>
                             </div>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                         <div class="col-6">
                             <div class="text-center p-3 bg-info text-white rounded">
                                 <h6 class="mb-1">Total Amount</h6>
-                                <h4 class="mb-0">${{ results.total_payment|floatformat:2 }}</h4>
+                                <h4 class="mb-0">₺{{ results.total_payment|floatformat:2 }}</h4>
                             </div>
                         </div>
                         <div class="col-6">
@@ -146,9 +146,9 @@
                                 {% for payment in results.payment_schedule|slice:":12" %}
                                 <tr>
                                     <td>{{ payment.payment_number }}</td>
-                                    <td>${{ payment.principal|floatformat:2 }}</td>
-                                    <td>${{ payment.interest|floatformat:2 }}</td>
-                                    <td>${{ payment.remaining_balance|floatformat:2 }}</td>
+                                    <td>₺{{ payment.principal|floatformat:2 }}</td>
+                                    <td>₺{{ payment.interest|floatformat:2 }}</td>
+                                    <td>₺{{ payment.remaining_balance|floatformat:2 }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

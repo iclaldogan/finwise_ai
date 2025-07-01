@@ -60,7 +60,7 @@
                                         <td>{{ anomaly.expense.date|date:"M d, Y" }}</td>
                                         <td>{{ anomaly.expense.description }}</td>
                                         <td>
-                                            <strong class="text-danger">${{ anomaly.expense.amount|floatformat:2 }}</strong>
+                                            <strong class="text-danger">₺{{ anomaly.expense.amount|floatformat:2 }}</strong>
                                         </td>
                                         <td>
                                             {% if anomaly.expense.category %}
@@ -139,7 +139,7 @@
             <div class="card bg-info text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Amount</h5>
-                    <h3 class="mb-0">${{ anomalies|length }}00.00</h3>
+                    <h3 class="mb-0">₺{{ anomalies|length }}00.00</h3>
                 </div>
             </div>
         </div>

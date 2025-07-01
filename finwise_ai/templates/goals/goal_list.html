@@ -90,8 +90,8 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>${{ goal.target_amount|floatformat:2 }}</td>
-                                <td>${{ goal.current_amount|floatformat:2 }}</td>
+                                <td>₺{{ goal.target_amount|floatformat:2 }}</td>
+                                <td>₺{{ goal.current_amount|floatformat:2 }}</td>
                                 <td>{{ goal.target_date|date:"M d, Y" }}</td>
                                 <td>
                                     {% if goal.status == 'active' %}

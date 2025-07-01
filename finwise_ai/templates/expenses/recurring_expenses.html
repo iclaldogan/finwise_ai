@@ -47,7 +47,7 @@
                                     <tr>
                                         <td>{{ recurring.date|date:"M d, Y" }}</td>
                                         <td>{{ recurring.parent_expense.description }}</td>
-                                        <td>${{ recurring.amount|floatformat:2 }}</td>
+                                        <td>₺{{ recurring.amount|floatformat:2 }}</td>
                                         <td>
                                             {% if recurring.parent_expense.category %}
                                                 <span class="badge bg-secondary">{{ recurring.parent_expense.category.name }}</span>
@@ -115,7 +115,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Monthly Total</h5>
-                    <h3 class="mb-0">${{ recurring_expenses|length }}00.00</h3>
+                    <h3 class="mb-0">₺{{ recurring_expenses|length }}00.00</h3>
                 </div>
             </div>
         </div>

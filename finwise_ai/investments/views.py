@@ -517,6 +517,7 @@ def portfolio_analysis(request):
         'return_percentage': return_percentage,
         'allocation': allocation,
         'allocation_percentages': allocation_percentages,
+        'allocation_json': json.dumps(allocation),
         'avg_risk': avg_risk,
     }
     
@@ -644,3 +645,202 @@ def calculate_interest_rate(investment_type, credit_score, employment_years):
     
     # Ensure rate is within reasonable bounds
     return max(2.0, min(final_rate, 18.0))
+
+
+@login_required
+def suitability_check(request):
+    """View for investment suitability assessment."""
+    if request.method == 'POST':
+        # Get form data
+        age = int(request.POST.get('age', 30))
+        income = float(request.POST.get('income', 50000))
+        savings = float(request.POST.get('savings', 10000))
+        debt = float(request.POST.get('debt', 0))
+        risk_tolerance = request.POST.get('risk_tolerance', 'medium')
+        investment_experience = request.POST.get('investment_experience', 'beginner')
+        investment_goals = request.POST.getlist('investment_goals')
+        time_horizon = int(request.POST.get('time_horizon', 5))
+        
+        # Calculate suitability score
+        suitability_score = calculate_suitability_score(
+            age, income, savings, debt, risk_tolerance, 
+            investment_experience, investment_goals, time_horizon
+        )
+        
+        # Get suitable investment types
+        suitable_investments = get_suitable_investments(suitability_score, risk_tolerance)
+        
+        # Generate recommendations
+        recommendations = generate_investment_recommendations(
+            suitability_score, age, income, savings, risk_tolerance, time_horizon
+        )
+        
+        context = {
+            'age': age,
+            'income': income,
+            'savings': savings,
+            'debt': debt,
+            'risk_tolerance': risk_tolerance,
+            'investment_experience': investment_experience,
+            'investment_goals': investment_goals,
+            'time_horizon': time_horizon,
+            'suitability_score': suitability_score,
+            'suitable_investments': suitable_investments,
+            'recommendations': recommendations,
+        }
+        
+        return render(request, 'investments/suitability_result.html', context)
+    
+    context = {}
+    return render(request, 'investments/suitability_check.html', context)
+
+def calculate_suitability_score(age, income, savings, debt, risk_tolerance, experience, goals, time_horizon):
+    """Calculate investment suitability score based on user profile."""
+    score = 0
+    
+    # Age factor (younger = higher risk capacity)
+    if age < 30:
+        score += 25
+    elif age < 40:
+        score += 20
+    elif age < 50:
+        score += 15
+    elif age < 60:
+        score += 10
+    else:
+        score += 5
+    
+    # Income factor
+    if income > 100000:
+        score += 20
+    elif income > 75000:
+        score += 15
+    elif income > 50000:
+        score += 10
+    else:
+        score += 5
+    
+    # Savings factor
+    debt_to_savings_ratio = debt / savings if savings > 0 else float('inf')
+    if debt_to_savings_ratio < 0.2:
+        score += 20
+    elif debt_to_savings_ratio < 0.5:
+        score += 15
+    elif debt_to_savings_ratio < 1.0:
+        score += 10
+    else:
+        score += 5
+    
+    # Risk tolerance
+    risk_scores = {'low': 5, 'medium': 15, 'high': 25}
+    score += risk_scores.get(risk_tolerance, 15)
+    
+    # Experience
+    experience_scores = {'beginner': 5, 'intermediate': 15, 'advanced': 25}
+    score += experience_scores.get(experience, 5)
+    
+    # Time horizon
+    if time_horizon > 10:
+        score += 15
+    elif time_horizon > 5:
+        score += 10
+    else:
+        score += 5
+    
+    return min(100, score)
+
+def get_suitable_investments(score, risk_tolerance):
+    """Get suitable investment types based on suitability score."""
+    suitable = []
+    
+    # Conservative investments (suitable for everyone)
+    suitable.append({
+        'name': 'Devlet Tahvilleri',
+        'risk_level': 1,
+        'expected_return': '3-5%',
+        'description': 'Düşük riskli, garantili getiri'
+    })
+    
+    if score >= 30:
+        suitable.append({
+            'name': 'Banka Mevduatı',
+            'risk_level': 1,
+            'expected_return': '8-12%',
+            'description': 'TMSF güvenceli, sabit getiri'
+        })
+    
+    if score >= 50:
+        suitable.append({
+            'name': 'Karma Fonlar',
+            'risk_level': 3,
+            'expected_return': '8-15%',
+            'description': 'Orta riskli, çeşitlendirilmiş portföy'
+        })
+    
+    if score >= 70:
+        suitable.append({
+            'name': 'Hisse Senedi Fonları',
+            'risk_level': 4,
+            'expected_return': '12-20%',
+            'description': 'Yüksek getiri potansiyeli, yüksek risk'
+        })
+    
+    if score >= 85:
+        suitable.append({
+            'name': 'Bireysel Hisse Senetleri',
+            'risk_level': 5,
+            'expected_return': '15-25%',
+            'description': 'En yüksek risk ve getiri potansiyeli'
+        })
+    
+    return suitable
+
+def generate_investment_recommendations(score, age, income, savings, risk_tolerance, time_horizon):
+    """Generate personalized investment recommendations."""
+    recommendations = []
+    
+    # Asset allocation recommendation
+    if score < 40:
+        recommendations.append({
+            'type': 'allocation',
+            'title': 'Muhafazakar Portföy Önerisi',
+            'description': 'Portföyünüzün %70\'ini sabit getirili araçlarda, %30\'unu hisse senetlerinde tutmanızı öneriyoruz.',
+            'allocation': {'bonds': 70, 'stocks': 30}
+        })
+    elif score < 70:
+        recommendations.append({
+            'type': 'allocation',
+            'title': 'Dengeli Portföy Önerisi',
+            'description': 'Portföyünüzün %50\'sini hisse senetlerinde, %50\'sini sabit getirili araçlarda tutmanızı öneriyoruz.',
+            'allocation': {'bonds': 50, 'stocks': 50}
+        })
+    else:
+        recommendations.append({
+            'type': 'allocation',
+            'title': 'Büyüme Odaklı Portföy Önerisi',
+            'description': 'Portföyünüzün %70\'ini hisse senetlerinde, %30\'unu sabit getirili araçlarda tutmanızı öneriyoruz.',
+            'allocation': {'bonds': 30, 'stocks': 70}
+        })
+    
+    # Emergency fund recommendation
+    emergency_fund_needed = income * 6 / 12  # 6 months of expenses
+    if savings < emergency_fund_needed:
+        recommendations.append({
+            'type': 'emergency_fund',
+            'title': 'Acil Durum Fonu Oluşturun',
+            'description': f'Yatırıma başlamadan önce {emergency_fund_needed:,.0f} TL acil durum fonu oluşturmanızı öneriyoruz.',
+            'amount': emergency_fund_needed
+        })
+    
+    # Dollar cost averaging recommendation
+    if time_horizon > 3:
+        monthly_investment = min(income * 0.2, savings * 0.1)
+        recommendations.append({
+            'type': 'strategy',
+            'title': 'Düzenli Yatırım Stratejisi',
+            'description': f'Aylık {monthly_investment:,.0f} TL düzenli yatırım yapmanızı öneriyoruz.',
+            'amount': monthly_investment
+        })
+    
+    return recommendations
+

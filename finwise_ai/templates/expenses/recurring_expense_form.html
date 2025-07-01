@@ -28,7 +28,7 @@
                                 <strong>{{ recurring.parent_expense.description }}</strong><br>
                                 <small class="text-muted">
                                     Category: {{ recurring.parent_expense.category.name|default:"No category" }} | 
-                                    Original Amount: ${{ recurring.parent_expense.amount|floatformat:2 }}
+                                    Original Amount: ₺{{ recurring.parent_expense.amount|floatformat:2 }}
                                 </small>
                             </div>
                         </div>
