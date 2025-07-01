@@ -105,10 +105,10 @@ def login_view(request):
                 
                 # Redirect to dashboard if email is verified, otherwise show warning
                 if user.email_verified:
-                    return redirect('dashboard')
+                    return redirect('dashboard:dashboard_home')
                 else:
                     messages.warning(request, 'Please verify your email to access all features.')
-                    return redirect('dashboard')
+                    return redirect('dashboard:dashboard_home')
             else:
                 messages.error(request, 'Invalid email or password.')
     else:
@@ -220,7 +220,7 @@ def resend_verification_email_view(request):
     
     if user.email_verified:
         messages.info(request, 'Your email is already verified.')
-        return redirect('dashboard')
+        return redirect('dashboard:dashboard_home')
     
     # Delete any existing verification tokens
     EmailVerification.objects.filter(user=user).delete()
@@ -243,4 +243,4 @@ def resend_verification_email_view(request):
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], html_message=message)
     
     messages.success(request, 'Verification email has been sent. Please check your inbox.')
-    return redirect('dashboard')
+    return redirect('dashboard:dashboard_home')
