@@ -136,7 +136,7 @@ def investment_create(request):
             
             investment.save()
             messages.success(request, 'Investment created successfully!')
-            return redirect('investment_detail', pk=investment.pk)
+            return redirect('investments:investment_detail', pk=investment.pk)
     else:
         form = InvestmentForm(user=request.user)
     

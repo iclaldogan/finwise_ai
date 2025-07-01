@@ -1,27 +1,66 @@
 {% extends 'base.html' %}
-{% block title %}Add Investment - FinWise AI{% endblock %}
+{% block title %}{{ title }} - FinWise AI{% endblock %}
 {% block content %}
 <div class='container py-4'>
-    <h2>Add New Investment</h2>
+    <h2>{{ title }}</h2>
     <form method='post'>
         {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        
         <div class='mb-3'>
-            <label class='form-label'>Investment Type</label>
-            <select class='form-select' name='investment_type' required>
-                <option value='stocks'>Stocks</option>
-                <option value='bonds'>Bonds</option>
-                <option value='etf'>ETF</option>
-            </select>
+            <label class='form-label' for="{{ form.investment_type.id_for_label }}">{{ form.investment_type.label }}</label>
+            {{ form.investment_type }}
+            {% if form.investment_type.errors %}
+                <div class="text-danger">{{ form.investment_type.errors }}</div>
+            {% endif %}
         </div>
+        
         <div class='mb-3'>
-            <label class='form-label'>Symbol</label>
-            <input type='text' class='form-control' name='symbol' required>
+            <label class='form-label' for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div class="text-danger">{{ form.name.errors }}</div>
+            {% endif %}
         </div>
+        
         <div class='mb-3'>
-            <label class='form-label'>Amount ($)</label>
-            <input type='number' step='0.01' class='form-control' name='purchase_amount' required>
+            <label class='form-label' for="{{ form.symbol.id_for_label }}">{{ form.symbol.label }}</label>
+            {{ form.symbol }}
+            {% if form.symbol.errors %}
+                <div class="text-danger">{{ form.symbol.errors }}</div>
+            {% endif %}
         </div>
-        <button type='submit' class='btn btn-primary'>Add Investment</button>
+        
+        <div class='mb-3'>
+            <label class='form-label' for="{{ form.purchase_price.id_for_label }}">{{ form.purchase_price.label }}</label>
+            {{ form.purchase_price }}
+            {% if form.purchase_price.errors %}
+                <div class="text-danger">{{ form.purchase_price.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class='mb-3'>
+            <label class='form-label' for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+                <div class="text-danger">{{ form.quantity.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class='mb-3'>
+            <label class='form-label' for="{{ form.purchase_date.id_for_label }}">{{ form.purchase_date.label }}</label>
+            {{ form.purchase_date }}
+            {% if form.purchase_date.errors %}
+                <div class="text-danger">{{ form.purchase_date.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <button type='submit' class='btn btn-primary'>{{ title }}</button>
         <a href='{% url 'investments:investments_home' %}' class='btn btn-secondary'>Cancel</a>
     </form>
 </div>
