@@ -76,7 +76,7 @@
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" onclick="calculateInvestment()">
                             <i class="fas fa-calculator me-2"></i>Calculate Investment
                         </button>
                     </form>
@@ -85,90 +85,13 @@
         </div>
 
         <div class="col-lg-6 mb-4">
-            {% if results %}
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-pie me-2"></i>
-                        Investment Results
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="bg-light p-3 rounded">
-                                <h6 class="text-muted mb-1">Final Value</h6>
-                                <h3 class="text-success mb-0">${{ results.final_value|floatformat:2 }}</h3>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="bg-light p-3 rounded">
-                                <h6 class="text-muted mb-1">Total Contributions</h6>
-                                <h3 class="text-primary mb-0">${{ results.total_contributions|floatformat:2 }}</h3>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="bg-light p-3 rounded">
-                                <h6 class="text-muted mb-1">Total Interest Earned</h6>
-                                <h3 class="text-info mb-0">${{ results.total_interest|floatformat:2 }}</h3>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="bg-light p-3 rounded">
-                                <h6 class="text-muted mb-1">Total Return</h6>
-                                <h3 class="text-warning mb-0">{{ results.total_return|floatformat:1 }}%</h3>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h6>Investment Breakdown</h6>
-                        <div class="progress mb-2" style="height: 20px;">
-                            <div class="progress-bar bg-primary" role="progressbar" 
-                                 style="width: {{ results.contribution_percentage }}%" 
-                                 aria-valuenow="{{ results.contribution_percentage }}" 
-                                 aria-valuemin="0" aria-valuemax="100">
-                                Contributions ({{ results.contribution_percentage|floatformat:1 }}%)
-                            </div>
-                            <div class="progress-bar bg-success" role="progressbar" 
-                                 style="width: {{ results.interest_percentage }}%" 
-                                 aria-valuenow="{{ results.interest_percentage }}" 
-                                 aria-valuemin="0" aria-valuemax="100">
-                                Interest ({{ results.interest_percentage|floatformat:1 }}%)
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h6>Investment Summary</h6>
-                        <ul class="list-unstyled">
-                            <li><strong>Initial Investment:</strong> ${{ results.initial_amount|floatformat:2 }}</li>
-                            <li><strong>Monthly Contributions:</strong> ${{ results.monthly_contribution|floatformat:2 }}</li>
-                            <li><strong>Annual Return Rate:</strong> {{ results.annual_return }}%</li>
-                            <li><strong>Investment Period:</strong> {{ results.investment_years }} years</li>
-                            <li><strong>Compounding:</strong> {{ results.compound_frequency_text }}</li>
-                        </ul>
-                    </div>
-
-                    <div class="mt-3">
-                        <a href="{% url 'investments:investment_create' %}" class="btn btn-success me-2">
-                            <i class="fas fa-plus me-2"></i>Start This Investment
-                        </a>
-                        <button class="btn btn-outline-primary" onclick="window.print()">
-                            <i class="fas fa-print me-2"></i>Print Results
-                        </button>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="card">
+            <div class="card" id="resultsCard">
                 <div class="card-body text-center py-5">
                     <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
                     <h5 class="text-muted">Enter investment details to see projected returns</h5>
                     <p class="text-muted">Use the calculator on the left to simulate your investment growth over time.</p>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
 
@@ -193,56 +116,125 @@
 {% endblock %}
 
 {% block extra_js %}
-{% if results %}
 <script>
-// Investment growth chart
-const ctx = document.getElementById('investmentChart').getContext('2d');
-const chartData = {{ results.chart_data|safe }};
-
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: chartData.labels,
-        datasets: [{
-            label: 'Total Value',
-            data: chartData.total_values,
-            borderColor: '#28a745',
-            backgroundColor: 'rgba(40, 167, 69, 0.1)',
-            fill: true,
-            tension: 0.4
-        }, {
-            label: 'Total Contributions',
-            data: chartData.contributions,
-            borderColor: '#007bff',
-            backgroundColor: 'rgba(0, 123, 255, 0.1)',
-            fill: true,
-            tension: 0.4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return '$' + value.toLocaleString();
-                    }
-                }
-            }
-        },
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
-                    }
-                }
-            }
-        }
+function calculateInvestment() {
+    // Get form values
+    const initialAmount = parseFloat(document.getElementById('initial_amount').value) || 0;
+    const monthlyContribution = parseFloat(document.getElementById('monthly_contribution').value) || 0;
+    const annualReturn = parseFloat(document.getElementById('annual_return').value) || 7;
+    const investmentYears = parseInt(document.getElementById('investment_years').value) || 10;
+    const compoundFrequency = parseInt(document.getElementById('compound_frequency').value) || 12;
+    
+    // Validate inputs
+    if (initialAmount < 0 || monthlyContribution < 0 || annualReturn < 0 || investmentYears <= 0) {
+        alert('Please enter valid positive numbers for all fields.');
+        return;
     }
-});
+    
+    // Calculate compound interest
+    const monthlyRate = (annualReturn / 100) / 12;
+    const totalMonths = investmentYears * 12;
+    
+    // Calculate future value with monthly contributions
+    let futureValue = initialAmount;
+    let totalContributions = initialAmount;
+    
+    for (let month = 1; month <= totalMonths; month++) {
+        futureValue = futureValue * (1 + monthlyRate) + monthlyContribution;
+        totalContributions += monthlyContribution;
+    }
+    
+    const totalInterest = futureValue - totalContributions;
+    const totalReturnPercentage = totalContributions > 0 ? ((futureValue - totalContributions) / totalContributions) * 100 : 0;
+    const contributionPercentage = totalContributions > 0 ? (totalContributions / futureValue) * 100 : 0;
+    const interestPercentage = 100 - contributionPercentage;
+    
+    // Update results card
+    const resultsCard = document.getElementById('resultsCard');
+    resultsCard.innerHTML = `
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2"></i>
+                Investment Results
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="bg-light p-3 rounded">
+                        <h6 class="text-muted mb-1">Final Value</h6>
+                        <h3 class="text-success mb-0">₺${futureValue.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="bg-light p-3 rounded">
+                        <h6 class="text-muted mb-1">Total Contributions</h6>
+                        <h3 class="text-primary mb-0">₺${totalContributions.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="bg-light p-3 rounded">
+                        <h6 class="text-muted mb-1">Total Interest Earned</h6>
+                        <h3 class="text-info mb-0">₺${totalInterest.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="bg-light p-3 rounded">
+                        <h6 class="text-muted mb-1">Total Return</h6>
+                        <h3 class="text-warning mb-0">${totalReturnPercentage.toFixed(1)}%</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h6>Investment Breakdown</h6>
+                <div class="progress mb-2" style="height: 20px;">
+                    <div class="progress-bar bg-primary" role="progressbar" 
+                         style="width: ${contributionPercentage}%" 
+                         aria-valuenow="${contributionPercentage}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        Contributions (${contributionPercentage.toFixed(1)}%)
+                    </div>
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: ${interestPercentage}%" 
+                         aria-valuenow="${interestPercentage}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        Interest (${interestPercentage.toFixed(1)}%)
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h6>Investment Summary</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Initial Investment:</strong> ₺${initialAmount.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</li>
+                    <li><strong>Monthly Contributions:</strong> ₺${monthlyContribution.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</li>
+                    <li><strong>Annual Return Rate:</strong> ${annualReturn}%</li>
+                    <li><strong>Investment Period:</strong> ${investmentYears} years</li>
+                    <li><strong>Compounding:</strong> ${getCompoundingText(compoundFrequency)}</li>
+                </ul>
+            </div>
+
+            <div class="mt-3">
+                <button class="btn btn-success me-2" onclick="alert('Investment calculation completed!')">
+                    <i class="fas fa-plus me-2"></i>Start This Investment
+                </button>
+                <button class="btn btn-outline-primary" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Print Results
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function getCompoundingText(frequency) {
+    switch(frequency) {
+        case 1: return 'Annually';
+        case 2: return 'Semi-annually';
+        case 4: return 'Quarterly';
+        case 12: return 'Monthly';
+        default: return 'Monthly';
+    }
+}
 </script>
-{% endif %}
 {% endblock %} 

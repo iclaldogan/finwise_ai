@@ -50,9 +50,15 @@ def goals_home(request):
         goal__user=request.user
     ).order_by('-date')[:5]
     
+    # Get all goals for template compatibility
+    all_goals = SavingsGoal.objects.filter(user=request.user).order_by('-created_at')
+    
     context = {
+        'goals': all_goals,  # For template compatibility
         'active_goals': active_goals,
         'completed_goals': completed_goals,
+        'goals_count': all_goals.count(),
+        'active_goals_count': active_goals.count(),
         'total_saved': total_saved,
         'total_target': total_target,
         'overall_progress': overall_progress,
