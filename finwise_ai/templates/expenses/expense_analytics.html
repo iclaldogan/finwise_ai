@@ -131,7 +131,7 @@
                                 {% for day in day_of_week %}
                                 <tr>
                                     <td>{{ day.day_of_week }}</td>
-                                    <td>${{ day.amount|floatformat:2 }}</td>
+                                    <td>₺{{ day.amount|floatformat:2 }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -164,7 +164,7 @@
                                 <tr>
                                     <td>{{ expense.date|date:"M d" }}</td>
                                     <td>{{ expense.description|truncatechars:25 }}</td>
-                                    <td><strong>${{ expense.amount|floatformat:2 }}</strong></td>
+                                    <td><strong>₺{{ expense.amount|floatformat:2 }}</strong></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -200,7 +200,7 @@
                                 {% for category in category_breakdown %}
                                 <tr>
                                     <td><strong>{{ category.category__name }}</strong></td>
-                                    <td>${{ category.amount|floatformat:2 }}</td>
+                                    <td>₺{{ category.amount|floatformat:2 }}</td>
                                                                          <td>{% widthratio category.amount total_expenses 100 %}%</td>
                                     <td>
                                         <div class="progress" style="width: 200px;">
@@ -255,7 +255,7 @@ new Chart(monthlyCtx, {
                 beginAtZero: true,
                 ticks: {
                     callback: function(value) {
-                        return '$' + value.toFixed(2);
+                        return '₺' + value.toFixed(2);
                     }
                 }
             }

@@ -74,7 +74,7 @@
                         <div class="mb-3">
                             <label for="total_debt" class="form-label">Total Outstanding Debt</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">₺</span>
                                 <input type="number" class="form-control" id="total_debt" name="total_debt" 
                                        step="0.01" min="0" value="{{ request.POST.total_debt|default:'5000' }}">
                             </div>
@@ -83,7 +83,7 @@
                         <div class="mb-3">
                             <label for="monthly_income" class="form-label">Monthly Income</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">₺</span>
                                 <input type="number" class="form-control" id="monthly_income" name="monthly_income" 
                                        step="0.01" min="0" value="{{ request.POST.monthly_income|default:'4000' }}">
                             </div>

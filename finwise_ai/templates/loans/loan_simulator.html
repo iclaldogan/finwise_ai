@@ -34,7 +34,7 @@
                         
                         <div class="mb-3">
                             <label for="loan_amount" class="form-label">
-                                <i class="fas fa-dollar-sign me-1"></i>Loan Amount
+                                <i class="fas fa-lira-sign me-1"></i>Loan Amount
                             </label>
                             <input type="number" class="form-control" id="loan_amount" name="loan_amount" 
                                    value="{{ loan_amount|default:100000 }}" step="1000" min="1000" max="10000000" required>
@@ -175,15 +175,74 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('loanSimulatorForm');
-    const inputs = form.querySelectorAll('input[type="number"], select');
+    const calculateBtn = document.querySelector('button[type="submit"]');
     
-    // Auto-calculate on input change
-    inputs.forEach(input => {
-        input.addEventListener('change', function() {
-            // Optional: Auto-submit form on change
-            // form.submit();
+    // JavaScript hesaplayıcı ekle
+    if (calculateBtn) {
+        calculateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            calculateLoan();
         });
-    });
+    }
+    
+    function calculateLoan() {
+        const loanAmount = parseFloat(document.getElementById('loan_amount').value) || 100000;
+        const interestRate = parseFloat(document.getElementById('interest_rate').value) || 5.5;
+        const loanTerm = parseFloat(document.getElementById('loan_term').value) || 15;
+        
+        // Aylık faiz oranı
+        const monthlyRate = (interestRate / 100) / 12;
+        const numPayments = loanTerm * 12;
+        
+        // Aylık ödeme hesaplama
+        const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                              (Math.pow(1 + monthlyRate, numPayments) - 1);
+        
+        const totalPayment = monthlyPayment * numPayments;
+        const totalInterest = totalPayment - loanAmount;
+        
+        // Sonuçları göster
+        const resultsDiv = document.querySelector('.col-lg-6:last-child .card-body');
+        if (resultsDiv) {
+            resultsDiv.innerHTML = `
+                <div class="text-center">
+                    <h5 class="text-primary mb-4">Loan Calculation Results</h5>
+                    
+                    <div class="row text-center mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <h6 class="text-muted mb-1">Monthly Payment</h6>
+                                <h4 class="text-primary mb-0">₺${monthlyPayment.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <h6 class="text-muted mb-1">Total Interest</h6>
+                                <h4 class="text-danger mb-0">₺${totalInterest.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-12">
+                            <div class="p-3 bg-primary text-white rounded">
+                                <h6 class="mb-1">Total Payment</h6>
+                                <h3 class="mb-0">₺${totalPayment.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            Loan Amount: ₺${loanAmount.toLocaleString('tr-TR')} | 
+                            Interest Rate: ${interestRate}% | 
+                            Term: ${loanTerm} years
+                        </small>
+                    </div>
+                </div>
+            `;
+        }
+    }
 });
 </script>
 {% endblock %} 
