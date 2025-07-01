@@ -156,6 +156,7 @@ def loan_create(request):
     context = {
         'form': form,
         'title': 'Add Loan',
+        'loan_types': LoanType.objects.all(),
     }
     
     return render(request, 'loans/loan_form.html', context)
@@ -191,6 +192,7 @@ def loan_edit(request, pk):
         'form': form,
         'loan': loan,
         'title': 'Edit Loan',
+        'loan_types': LoanType.objects.all(),
     }
     
     return render(request, 'loans/loan_form.html', context)
