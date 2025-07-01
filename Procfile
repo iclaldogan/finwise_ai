@@ -1,1 +1,1 @@
-web: cd finwise_ai && gunicorn finwise.wsgi --log-file - 
+web: cd finwise_ai && gunicorn finwise.wsgi:application --log-file - 
