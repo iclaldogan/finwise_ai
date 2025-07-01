@@ -91,9 +91,7 @@ def dashboard_home(request):
         status='active'
     ).order_by('target_date')
     
-    # Calculate progress for each goal
-    for goal in savings_goals:
-        goal.progress_percentage = (goal.current_amount / goal.target_amount) * 100 if goal.target_amount > 0 else 0
+    # Progress percentage is calculated automatically via property
     
     # Get investment portfolio
     investments = Investment.objects.filter(
@@ -463,9 +461,8 @@ def financial_goals_progress(request):
         user=request.user
     ).order_by('target_date')
     
-    # Calculate progress for each goal
+    # Progress percentage is calculated automatically via property
     for goal in savings_goals:
-        goal.progress_percentage = (goal.current_amount / goal.target_amount) * 100 if goal.target_amount > 0 else 0
         
         # Calculate monthly contribution needed
         if not goal.is_completed:
