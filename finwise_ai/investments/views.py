@@ -180,7 +180,7 @@ def investment_delete(request, pk):
         
         investment.delete()
         messages.success(request, 'Investment deleted successfully!')
-        return redirect('investment_list')
+        return redirect('investments:investment_list')
     
     context = {
         'investment': investment,
@@ -480,7 +480,7 @@ def portfolio_analysis(request):
     
     if not investments.exists():
         messages.info(request, 'You need to add investments to your portfolio before analyzing it.')
-        return redirect('investment_list')
+        return redirect('investments:investment_list')
     
     # Calculate portfolio metrics
     total_value = sum(inv.current_value for inv in investments)

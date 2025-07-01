@@ -21,8 +21,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">Monthly Expenses</h6>
-                            <h3 class="mb-0">${{ current_month_total|floatformat:2|default:"0" }}</h3>
+                            <h6 class="card-title">Aylık Giderler</h6>
+                            <h3 class="mb-0">₺{{ current_month_total|floatformat:2|default:"0" }}</h3>
                             <small>
                                 {% if mom_change > 0 %}
                                     <i class="fas fa-arrow-up"></i> +{{ mom_change|floatformat:1 }}%
@@ -47,9 +47,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">Savings Rate</h6>
+                            <h6 class="card-title">Tasarruf Oranı</h6>
                             <h3 class="mb-0">{{ savings_rate|floatformat:1|default:"0" }}%</h3>
-                            <small>of monthly income</small>
+                            <small>aylık gelirin</small>
                         </div>
                         <div>
                             <i class="fas fa-piggy-bank fa-2x opacity-75"></i>
@@ -64,9 +64,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">Total Debt</h6>
-                            <h3 class="mb-0">${{ total_loan_balance|floatformat:2|default:"0" }}</h3>
-                            <small>across all loans</small>
+                            <h6 class="card-title">Toplam Borç</h6>
+                            <h3 class="mb-0">₺{{ total_loan_balance|floatformat:2|default:"0" }}</h3>
+                            <small>tüm krediler</small>
                         </div>
                         <div>
                             <i class="fas fa-university fa-2x opacity-75"></i>
@@ -81,8 +81,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">Investment Value</h6>
-                            <h3 class="mb-0">${{ total_investment_value|floatformat:2|default:"0" }}</h3>
+                            <h6 class="card-title">Yatırım Değeri</h6>
+                            <h3 class="mb-0">₺{{ total_investment_value|floatformat:2|default:"0" }}</h3>
                             <small>
                                 {% if investment_return > 0 %}
                                     <i class="fas fa-arrow-up"></i> +{{ investment_return|floatformat:1 }}%

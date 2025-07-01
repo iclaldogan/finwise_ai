@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Loan Eligibility Check - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-calculator me-2"></i>
+                        Kredi Uygunluk Kontrolü
+                    </h4>
+                    <p class="card-subtitle text-muted">
+                        Kredi başvurunuz için uygunluğunuzu kontrol edin
+                    </p>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="row g-3">
+                        {% csrf_token %}
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.loan_type.id_for_label }}" class="form-label">Kredi Türü *</label>
+                            {{ form.loan_type }}
+                            {% if form.loan_type.errors %}
+                                <div class="text-danger">{{ form.loan_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.requested_amount.id_for_label }}" class="form-label">Talep Edilen Miktar *</label>
+                            {{ form.requested_amount }}
+                            {% if form.requested_amount.errors %}
+                                <div class="text-danger">{{ form.requested_amount.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.requested_term_months.id_for_label }}" class="form-label">Vade (Ay) *</label>
+                            {{ form.requested_term_months }}
+                            {% if form.requested_term_months.errors %}
+                                <div class="text-danger">{{ form.requested_term_months.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.monthly_income.id_for_label }}" class="form-label">Aylık Gelir *</label>
+                            {{ form.monthly_income }}
+                            {% if form.monthly_income.errors %}
+                                <div class="text-danger">{{ form.monthly_income.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.existing_monthly_debt.id_for_label }}" class="form-label">Mevcut Aylık Borç</label>
+                            {{ form.existing_monthly_debt }}
+                            {% if form.existing_monthly_debt.errors %}
+                                <div class="text-danger">{{ form.existing_monthly_debt.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.credit_score.id_for_label }}" class="form-label">Kredi Puanı</label>
+                            {{ form.credit_score }}
+                            {% if form.credit_score.errors %}
+                                <div class="text-danger">{{ form.credit_score.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.employment_years.id_for_label }}" class="form-label">Çalışma Süresi (Yıl)</label>
+                            {{ form.employment_years }}
+                            {% if form.employment_years.errors %}
+                                <div class="text-danger">{{ form.employment_years.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-check me-2"></i>
+                                    Uygunluğu Kontrol Et
+                                </button>
+                                <a href="{% url 'loan_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Geri Dön
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if eligibility_result %}
+                    <div class="mt-4">
+                        <div class="card {% if eligibility_result.eligible %}border-success{% else %}border-warning{% endif %}">
+                            <div class="card-header {% if eligibility_result.eligible %}bg-success text-white{% else %}bg-warning text-dark{% endif %}">
+                                <h5 class="mb-0">
+                                    <i class="fas {% if eligibility_result.eligible %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+                                    Uygunluk Sonucu
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% if eligibility_result.eligible %}
+                                    <p class="text-success mb-3">
+                                        <strong>Tebrikler!</strong> Kredi başvurunuz için uygun görünüyorsunuz.
+                                    </p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Önerilen Faiz Oranı:</strong> %{{ eligibility_result.suggested_rate }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Tahmini Aylık Ödeme:</strong> ₺{{ eligibility_result.estimated_monthly_payment }}</p>
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'loan_create' %}" class="btn btn-success">
+                                        <i class="fas fa-plus me-2"></i>
+                                        Kredi Başvurusu Yap
+                                    </a>
+                                {% else %}
+                                    <p class="text-warning mb-3">
+                                        <strong>Üzgünüz,</strong> mevcut durumunuzla kredi başvurunuz onaylanmayabilir.
+                                    </p>
+                                    <div class="alert alert-info">
+                                        <h6>İyileştirme Önerileri:</h6>
+                                        <ul class="mb-0">
+                                            {% for suggestion in eligibility_result.suggestions %}
+                                                <li>{{ suggestion }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

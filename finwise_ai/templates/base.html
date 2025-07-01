@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,22 +23,22 @@
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}" href="{% url 'dashboard:dashboard_home' %}">Dashboard</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}" href="{% url 'dashboard:dashboard_home' %}">Gösterge Paneli</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'expenses' in request.path %}active{% endif %}" href="{% url 'expenses:expense_home' %}">Expenses</a>
+                            <a class="nav-link {% if 'expenses' in request.path %}active{% endif %}" href="{% url 'expenses:expense_home' %}">Giderler</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'loans' in request.path %}active{% endif %}" href="{% url 'loans:loan_home' %}">Loans</a>
+                            <a class="nav-link {% if 'loans' in request.path %}active{% endif %}" href="{% url 'loans:loan_home' %}">Krediler</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'goals' in request.path %}active{% endif %}" href="{% url 'goals:goals_home' %}">Goals</a>
+                            <a class="nav-link {% if 'goals' in request.path %}active{% endif %}" href="{% url 'goals:goals_home' %}">Hedefler</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'investments' in request.path %}active{% endif %}" href="{% url 'investments:investments_home' %}">Investments</a>
+                            <a class="nav-link {% if 'investments' in request.path %}active{% endif %}" href="{% url 'investments:investments_home' %}">Yatırımlar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'credit' in request.path %}active{% endif %}" href="{% url 'credit:credit_home' %}">Credit</a>
+                            <a class="nav-link {% if 'credit' in request.path %}active{% endif %}" href="{% url 'credit:credit_home' %}">Kredi</a>
                         </li>
                         <div class="ms-3 d-flex align-items-center">
                             <div class="dropdown">
@@ -49,10 +49,10 @@
                                     <span>{{ user.first_name }} {{ user.last_name }}</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fas fa-cog me-2"></i>Admin Panel</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-user me-2"></i>Profil</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fas fa-cog me-2"></i>Yönetim Paneli</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Çıkış</a></li>
                                 </ul>
                             </div>
                         </div>

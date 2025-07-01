@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ goal.name }} - FinWise AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="card-title mb-1">
+                                <i class="fas fa-bullseye me-2"></i>
+                                {{ goal.name }}
+                            </h4>
+                            <p class="card-subtitle text-muted mb-0">
+                                {{ goal.description|default:"Hedef açıklaması yok" }}
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-{% if goal.priority == 'high' %}danger{% elif goal.priority == 'medium' %}warning{% else %}secondary{% endif %} fs-6">
+                                {{ goal.get_priority_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Progress Overview -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="progress-circle mb-2" style="width: 120px; height: 120px; margin: 0 auto;">
+                                    <svg width="120" height="120">
+                                        <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="8"/>
+                                        <circle cx="60" cy="60" r="50" fill="none" stroke="#007bff" stroke-width="8"
+                                                stroke-dasharray="{{ goal.progress_percentage|floatformat:0 }}, 100"
+                                                stroke-dashoffset="25" transform="rotate(-90 60 60)"/>
+                                        <text x="60" y="65" text-anchor="middle" font-size="18" font-weight="bold" fill="#007bff">
+                                            {{ goal.progress_percentage|floatformat:0 }}%
+                                        </text>
+                                    </svg>
+                                </div>
+                                <p class="text-muted mb-0">Tamamlanma Oranı</p>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 text-center">
+                                        <h5 class="text-success mb-1">₺{{ goal.current_amount|floatformat:2 }}</h5>
+                                        <p class="text-muted mb-0">Mevcut Miktar</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 text-center">
+                                        <h5 class="text-primary mb-1">₺{{ goal.target_amount|floatformat:2 }}</h5>
+                                        <p class="text-muted mb-0">Hedef Miktar</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 text-center">
+                                        <h5 class="text-warning mb-1">₺{{ required_monthly|floatformat:2 }}</h5>
+                                        <p class="text-muted mb-0">Aylık Gerekli</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 text-center">
+                                        <h5 class="text-info mb-1">{{ days_remaining }}</h5>
+                                        <p class="text-muted mb-0">Kalan Gün</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 text-center">
+                                        <h5 class="text-secondary mb-1">{{ months_remaining }}</h5>
+                                        <p class="text-muted mb-0">Kalan Ay</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goal Timeline -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>Hedef Zaman Çizelgesi</h5>
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-success"></div>
+                                    <div class="timeline-content">
+                                        <h6>Başlangıç Tarihi</h6>
+                                        <p class="text-muted">{{ goal.start_date|date:"d M Y" }}</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-primary"></div>
+                                    <div class="timeline-content">
+                                        <h6>Bugün</h6>
+                                        <p class="text-muted">{{ today|date:"d M Y" }}</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-warning"></div>
+                                    <div class="timeline-content">
+                                        <h6>Hedef Tarihi</h6>
+                                        <p class="text-muted">{{ goal.target_date|date:"d M Y" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contributions History -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Katkı Geçmişi</h5>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addContributionModal">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Katkı Ekle
+                                </button>
+                            </div>
+                            {% if contributions %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Tarih</th>
+                                                <th>Miktar</th>
+                                                <th>Açıklama</th>
+                                                <th>İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for contribution in contributions %}
+                                            <tr>
+                                                <td>{{ contribution.date|date:"d M Y" }}</td>
+                                                <td class="text-success">₺{{ contribution.amount|floatformat:2 }}</td>
+                                                <td>{{ contribution.description|default:"-" }}</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteContribution({{ contribution.id }})">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Henüz katkı eklenmemiş</p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addContributionModal">
+                                        İlk Katkıyı Ekle
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'goal_edit' goal.pk %}" class="btn btn-warning">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Düzenle
+                                </a>
+                                <button class="btn btn-danger" onclick="deleteGoal({{ goal.pk }})">
+                                    <i class="fas fa-trash me-2"></i>
+                                    Sil
+                                </button>
+                                <a href="{% url 'goal_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Geri Dön
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Contribution Modal -->
+<div class="modal fade" id="addContributionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Katkı Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'goal_add_contribution' goal.pk %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Miktar *</label>
+                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Tarih *</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ today|date:'Y-m-d' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Açıklama</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Katkı Ekle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.progress-circle circle {
+    transition: stroke-dasharray 0.5s ease;
+}
+</style>
+
+<script>
+function deleteContribution(contributionId) {
+    if (confirm('Bu katkıyı silmek istediğinizden emin misiniz?')) {
+        // AJAX call to delete contribution
+        fetch(`/goals/contribution/${contributionId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Katkı silinirken bir hata oluştu.');
+            }
+        });
+    }
+}
+
+function deleteGoal(goalId) {
+    if (confirm('Bu hedefi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+        window.location.href = `/goals/${goalId}/delete/`;
+    }
+}
+</script>
+{% endblock %}
+
